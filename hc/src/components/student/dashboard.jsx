@@ -56,7 +56,7 @@ const Dashboard= () => {
             description="Report lost items or mark found ones"
             icon={<Package size={22} className="text-green-500" />}
             iconBgColor="bg-nitc-light-green"
-            onClick={() => handleCardClick("Lost & Found")}
+            onClick={() => navigate('/LandF')}
             style={{ animationDelay: "200ms" }}
           />
           
@@ -66,7 +66,7 @@ const Dashboard= () => {
             description="Join clubs and collaborate with peers"
             icon={<Users size={22} className="text-yellow-500" />}
             iconBgColor="bg-nitc-light-yellow"
-            onClick={() => handleCardClick("Skill Sharing")}
+            onClick={() => navigate("/skill")}
             style={{ animationDelay: "300ms" }}
           />
           
@@ -76,7 +76,7 @@ const Dashboard= () => {
             description="Submit and track late entry requests"
             icon={<Clock size={22} className="text-purple-500" />}
             iconBgColor="bg-nitc-light-purple"
-            onClick={() => handleCardClick("Late Entry")}
+            onClick={() => navigate("/late")}
             style={{ animationDelay: "400ms" }}
           />
           
@@ -86,7 +86,7 @@ const Dashboard= () => {
             description="Buy, sell, or share food items"
             icon={<Utensils size={22} className="text-red-500" />}
             iconBgColor="bg-nitc-light-red"
-            onClick={() => handleCardClick("Food Sharing")}
+            onClick={() => navigate("/food")}
             style={{ animationDelay: "500ms" }}
           />
         </div>
