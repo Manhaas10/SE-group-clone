@@ -29,23 +29,23 @@ const NewFoodPost = () => {
     
     // In a real app, we would save the post to a database here
     toast.success("Food sharing post created successfully!");
-    setTimeout(() => navigate("/food-sharing"), 500);
+    setTimeout(() => navigate("/food"), 500);
   };
 
   return (
-    <div className="min-h-screen bg-nitc-gray">
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
-        <div className="app-container py-4 flex items-center">
-          <Link 
-            to="/food-sharing"
-            className="mr-3 inline-flex items-center gap-2 text-gray-700"
-            aria-label="Go back"
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <div className="bg-white shadow-sm">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center">
+          <button
+            onClick={() => navigate("/food")}
+            className="mr-4 hover:bg-gray-100 p-2 rounded-full transition-colors"
           >
-            <ArrowLeft size={18} />
-            <span>Back</span>
-          </Link>
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-xl font-bold text-blue-600">NITC HostelConnect</h1>
         </div>
-      </header>
+      </div>
       
       <main className="app-container py-8">
         <div className="max-w-2xl mx-auto">
@@ -88,7 +88,7 @@ const NewFoodPost = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter title"
-                  className="form-input"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                 />
               </div>
               
@@ -109,7 +109,7 @@ const NewFoodPost = () => {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="Enter price or 'Free'"
-                  className="form-input"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                 />
               </div>
               
@@ -117,14 +117,14 @@ const NewFoodPost = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate("/food-sharing")}
+                  onClick={() => navigate("/food")}
                 >
                   Cancel
                 </Button>
                 
                 <Button
                   type="submit"
-                  className="bg-[#14151c] hover:bg-black/80"
+                  className="bg-blue-600 text-white"
                 >
                   Post
                 </Button>

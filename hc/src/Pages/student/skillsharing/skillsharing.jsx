@@ -1,111 +1,171 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { PlusCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import Header from "@/components/student/Header";
-import SkillTabs from "@/components/student/SkillTabs";
-import SkillCard from "@/components/student/SkillCard";
-import { skillPosts } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import SkillPost from "@/components/student/SkillPost";
+import NewPostForm from "@/components/student/NewPostForm";
+import { Plus, ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-Toast";
+import { useNavigate } from "react-router-dom";
 
-// type TabOption = "all" | "offered" | "wanted";
+// Sample initial data
+const initialPosts = [
+  {
+    id: "1",
+    type: "OFFERING",
+    category: "Programming",
+    title: "Python Programming Basics",
+    description: "Can teach Python basics, including data structures and algorithms",
+    availability: "Weekends",
+    participants: 3,
+    postedBy: "John Doe (A-304)",
+  },
+  {
+    id: "2",
+    type: "SEEKING",
+    category: "Music",
+    title: "Looking for Guitar Lessons",
+    description: "Interested in learning acoustic guitar basics",
+    availability: "Weekday Evenings",
+    participants: 0,
+    postedBy: "Jane Smith (B-205)",
+  },
+];
 
 const Skill = () => {
-  const [activeTab, setActiveTab] = useState("all");
-  const [filteredPosts, setFilteredPosts] = useState(skillPosts);
-  const [isLoading, setIsLoading] = useState(true);
+  const [posts, setPosts] = useState(initialPosts);
+  const [filter, setFilter] = useState("ALL");
+  const [showNewPostForm, setShowNewPostForm] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Simulate loading data
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === "all") {
-      setFilteredPosts(skillPosts);
-    } else if (activeTab === "offered") {
-      setFilteredPosts(skillPosts.filter(post => post.type === "offering"));
+  // Handle Back Button Navigation
+  const handleBack = () => {
+    if (showNewPostForm) {
+      setShowNewPostForm(false); // Close the new post form
+      navigate("/skill"); // Navigate to /skill
     } else {
-      setFilteredPosts(skillPosts.filter(post => post.type === "seeking"));
+      navigate("/dashboards"); // Navigate to dashboard
     }
-  }, [activeTab]);
+  };
+
+  const filteredPosts =
+    filter === "ALL" ? posts : posts.filter((post) => post.type === filter);
+
+  const handleAddPost = (data) => {
+    const newPost = {
+      id: Date.now().toString(),
+      type: data.type,
+      category: data.category,
+      title: data.title,
+      description: data.description,
+      availability: data.availability,
+      participants: 0,
+      postedBy: "Manhaas (Your Room)",
+    };
+
+    setPosts((prev) => [newPost, ...prev]);
+    setShowNewPostForm(false);
+    toast({
+      title: "Success!",
+      description: "Your skill sharing post has been created.",
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-nitc-gray">
-      <Header />
-      
-      <main className="app-container py-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="bg-white shadow-sm">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center">
+          <button
+            onClick={handleBack}
+            className="mr-4 hover:bg-gray-100 p-2 rounded-full transition-colors"
           >
-            <h2 className="text-2xl font-bold mb-1">Skill Sharing</h2>
-            <p className="text-gray-600">Share your skills or learn from others</p>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="mt-4 md:mt-0"
-          >
-            <Link
-              to="/new-post"
-              className="inline-flex items-center gap-2 bg-nitc-blue text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200"
-            >
-              <PlusCircle size={18} />
-              <span>New Post</span>
-            </Link>
-          </motion.div>
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-xl font-bold text-blue-600">NITC HostelConnect</h1>
         </div>
-        
-        <SkillTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-        
-        {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((n) => (
-              <div 
-                key={n} 
-                className="h-48 bg-white/40 animate-pulse rounded-lg"
-              />
-            ))}
-          </div>
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+      </div>
+      <main className="app-container py-8 flex-1 flex flex-col items-center">
+        <div className="w-full max-w-4xl px-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-3xl font-bold">Skill Sharing</h2>
+              <p className="text-gray-500">Share your skills or learn from others</p>
+            </div>
+            <Button
+            variant="outline"
+              className="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white"
+              onClick={() => setShowNewPostForm(true)}
             >
-              {filteredPosts.map((post, index) => (
-                <SkillCard key={post.id} post={post} index={index} />
+              <Plus className="h-5 w-5" />
+              New Post
+            </Button>
+          </div>
+
+          <div className="flex gap-4 mb-6">
+  <Button
+    onClick={() => setFilter("ALL")}
+    className={`rounded-md px-6 py-2 font-medium ${
+      filter === "ALL"
+        ? "bg-blue-600 text-white"
+        : "bg-white border border-gray-300 text-gray-700"
+    }`}
+  >
+    All Posts
+  </Button>
+  <Button
+    onClick={() => setFilter("OFFERING")}
+    className={`rounded-md px-6 py-2 font-medium ${
+      filter === "OFFERING"
+        ? "bg-blue-600 text-white"
+        : "bg-white border border-gray-300 text-gray-700"
+    }`}
+  >
+    Skills Offered
+  </Button>
+  <Button
+    onClick={() => setFilter("SEEKING")}
+    className={`rounded-md px-6 py-2 font-medium ${
+      filter === "SEEKING"
+        ? "bg-blue-600 text-white"
+        : "bg-white border border-gray-300 text-gray-700"
+    }`}
+  >
+    Skills Wanted
+  </Button>
+</div>
+
+
+          {showNewPostForm ? (
+            <div className="flex justify-center items-center w-full">
+              <div className="w-full max-w-2xl bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <NewPostForm
+                  onClose={() => setShowNewPostForm(false)}
+                  onSubmit={handleAddPost}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredPosts.map((post) => (
+                <SkillPost
+                  key={post.id}
+                  type={post.type}
+                  category={post.category}
+                  title={post.title}
+                  description={post.description}
+                  availability={post.availability}
+                  participants={post.participants}
+                  postedBy={post.postedBy}
+                />
               ))}
-              
               {filteredPosts.length === 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-12"
-                >
-                  <p className="text-gray-500 mb-4">No posts found in this category</p>
-                  <Link
-                    to="/new-post"
-                    className="text-nitc-blue hover:underline"
-                  >
-                    Create the first post
-                  </Link>
-                </motion.div>
+                <div className="bg-white rounded-xl shadow-sm border border-border p-8 text-center">
+                  <p className="text-gray-500">No posts found. Create a new post to get started!</p>
+                </div>
               )}
-            </motion.div>
-          </AnimatePresence>
-        )}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

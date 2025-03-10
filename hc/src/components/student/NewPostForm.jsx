@@ -1,12 +1,6 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-
-const postTypes = [
-  { id: "offering", label: "Offering Skill" },
-  { id: "seeking", label: "Seeking Skill" },
-];
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 const categories = [
   "Programming",
@@ -15,149 +9,179 @@ const categories = [
   "Art",
   "Languages",
   "Academics",
-  "Others",
+  "Others"
 ];
 
-const NewPostForm = () => {
-  const navigate = useNavigate();
-  const [postType, setPostType] = useState("offering");
-  const [category, setCategory] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [availability, setAvailability] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+const postTypes = [
+  { value: "OFFERING", label: "Offering Skill" },
+  { value: "SEEKING", label: "Seeking Skill" }
+];
+
+
+
+const NewPostForm = ({ onClose, onSubmit }) => {
+  const [formData, setFormData] = useState({
+    type: "OFFERING",
+    category: "",
+    title: "",
+    description: "",
+    availability: "",
+    showCategoryDropdown: false,
+    showTypeDropdown: false,
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectCategory = (category) => {
+    setFormData(prev => ({
+      ...prev,
+      category,
+      showCategoryDropdown: false
+    }));
+  };
+
+  const handleSelectType = (type) => {
+    setFormData(prev => ({
+      ...prev,
+      type,
+      showTypeDropdown: false
+    }));
+  };
+
+  const toggleDropdown = (dropdownName) => {
+    setFormData(prev => ({
+      ...prev,
+      [dropdownName]: !prev[dropdownName],
+      ...(dropdownName === 'showCategoryDropdown' ? { showTypeDropdown: false } : { showCategoryDropdown: false })
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validate form
-    if (!title.trim() || !description.trim() || !category || !availability.trim()) {
-      toast.error("Please fill all the fields");
-      return;
-    }
-    
-    // In a real app, we would save the post to a database here
-    // For now, we'll just show a success message and navigate back
-    toast.success("Post created successfully!");
-    setTimeout(() => navigate("/"), 500);
+    onSubmit({
+      type: formData.type,
+      category: formData.category,
+      title: formData.title,
+      description: formData.description,
+      availability: formData.availability,
+    });
+  };
+
+  const getTypeLabel = () => {
+    const type = postTypes.find(t => t.value === formData.type);
+    return type ? type.label : "Select type";
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="bg-white rounded-lg shadow-sm border border-gray-100 p-6"
-    >
-      <h2 className="text-xl font-semibold mb-6">New Skill Sharing Post</h2>
+    <div className="bg-white rounded-xl shadow-sm border border-border p-6">
+      <h2 className="text-xl font-bold mb-4">New Skill Sharing Post</h2>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Post Type</label>
-          <div className="flex space-x-4">
-            {postTypes.map((type) => (
-              <label 
-                key={type.id} 
-                className="flex items-center space-x-2 cursor-pointer"
-              >
-                <input
-                  type="radio"
-                  name="postType"
-                  value={type.id}
-                  checked={postType === type.id}
-                  onChange={() => setPostType(type.id)}
-                  className="h-4 w-4 text-nitc-blue focus:ring-nitc-blue border-gray-300"
-                />
-                <span className="text-sm text-gray-700">{type.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-        
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Category</label>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Post Type</label>
           <div className="relative">
             <button
               type="button"
-              className="w-full flex justify-between items-center form-input text-left"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full text-left px-4 py-2 border border-gray-300 rounded-md flex justify-between items-center"
+              onClick={() => toggleDropdown('showTypeDropdown')}
             >
-              {category || "Select category"}
-              <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <path d="M7 7l3 3 3-3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              {getTypeLabel()}
+              <span className="text-gray-400">▼</span>
             </button>
-            
-            {isDropdownOpen && (
-              <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm border border-gray-200">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => {
-                      setCategory(cat);
-                      setIsDropdownOpen(false);
-                    }}
+            {formData.showTypeDropdown && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                {postTypes.map(type => (
+                  <div
+                    key={type.value}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectType(type.value)}
                   >
-                    {cat}
-                  </button>
+                    {type.label}
+                  </div>
                 ))}
               </div>
             )}
           </div>
         </div>
-        
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Title</label>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Category</label>
+          <div className="relative">
+            <button
+              type="button"
+              className="w-full text-left px-4 py-2 border border-gray-300 rounded-md flex justify-between items-center"
+              onClick={() => toggleDropdown('showCategoryDropdown')}
+            >
+              {formData.category || "Select category"}
+              <span className="text-gray-400">▼</span>
+            </button>
+            {formData.showCategoryDropdown && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {categories.map(category => (
+                  <div
+                    key={category}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectCategory(category)}
+                  >
+                    {category}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Title</label>
           <input
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
             placeholder="What skill are you offering/seeking?"
-            className="form-input"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            required
           />
         </div>
-        
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Description</label>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Description</label>
           <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
             placeholder="Provide more details about your skill sharing post"
-            className="form-input form-textarea"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md h-24 resize-none"
+            required
           />
         </div>
-        
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Availability</label>
+
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-1">Availability</label>
           <input
             type="text"
-            value={availability}
-            onChange={(e) => setAvailability(e.target.value)}
+            name="availability"
+            value={formData.availability}
+            onChange={handleInputChange}
             placeholder="When are you available? (e.g., Weekends, Evening 6-8 PM)"
-            className="form-input"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            required
           />
         </div>
-        
-        <div className="flex space-x-4">
-          <button
-            type="submit"
-            className="bg-nitc-blue hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
-          >
+
+        <div className="flex gap-3">
+          <Button type="submit" variant="outline" className="bg-blue-600 text-white">
             Create Post
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md transition-colors duration-200"
-          >
+          </Button>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
-          </button>
+          </Button>
         </div>
       </form>
-    </motion.div>
+    </div>
   );
 };
 

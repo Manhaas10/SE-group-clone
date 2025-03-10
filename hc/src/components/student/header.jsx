@@ -4,6 +4,7 @@ import { Bell, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Badge from './Badge';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 
 const Header= ({
@@ -11,6 +12,7 @@ const Header= ({
   notificationCount,
   onLogout = () => console.log('Logout clicked'),
 }) => {
+  const navigate=useNavigate();
   return (
     <header className="w-full py-4 px-6 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm">
       <div className="flex items-center gap-4">
@@ -33,7 +35,7 @@ const Header= ({
           onClick={onLogout}
         >
           <LogOut size={18} />
-          <span className="hidden sm:inline-block">Logout</span>
+          <span className="hidden sm:inline-block" onClick={()=>navigate('/')}>Logout</span>
         </Button>
       </div>
     </header>
