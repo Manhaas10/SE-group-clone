@@ -11,6 +11,7 @@ import LateEntryRequest from "./Pages/student/LateEntryRequest";
 import FoodSharing from "./Pages/student/FoodSharing";
 import NewFoodPost from "./Pages/student/NewFoodPost";
 import Skill from "./Pages/student/skillsharing/skillsharing";
+import Dashc from "./Pages/caretaker/index";
 
 import './index.css'
 
@@ -31,6 +32,7 @@ function App() {
       <Route path="/food" element={<FoodSharing />} />  
       <Route path="/skill" element={<Skill />} />
       <Route path="/nfp" element={<NewFoodPost />} />
+      <Route path="/dashboardc" element={<Dashc />} />
 
 
       </Routes>
