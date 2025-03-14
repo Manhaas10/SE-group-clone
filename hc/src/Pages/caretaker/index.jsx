@@ -13,7 +13,7 @@ import {
   BellRing, 
   Plus 
 } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom'; 
 const Dashc = () => {
   const [showAnnouncementModal, setShowAnnouncementModal] = React.useState(false);
 
@@ -30,13 +30,23 @@ const Dashc = () => {
     { color: 'lost' , content: 'Lost item reported: Calculator in Library', time: '15m ago' },
     { color: 'entry' , content: 'Late entry request approved for Student ID: 2021BTech1234', time: '1h ago' },
   ];
-
+  const navigate = useNavigate();
   const handleAction = (section) => {
-    toast({
-      title: `Navigating to ${section}`,
-      description: `You are being redirected to the ${section} section.`
-    });
-    // In a real app, this would navigate to the respective section
+    const routes = {
+      announcements: '/announcements',
+      complaints: '/comps',
+      lostfound: '/lndf',
+      entryrequests: '/l',
+    };
+
+    if (routes[section.toLowerCase()]) {
+      navigate(routes[section.toLowerCase()]);
+    } else {
+      toast({
+        title: `Navigating to ${section}`,
+        description: `You are being redirected to the ${section} section.`,
+      });
+    }
   };
 
   const handleNewPost = () => {
@@ -92,7 +102,7 @@ const Dashc = () => {
             description="Track and verify lost & found items"
             icon={<Search size={20} />}
             variant="lost"
-            onAction={() => handleAction('lost-and-found')}
+            onAction={() => handleAction('lostfound')}
             animationDelay="animate-delay-200"
           />
           
@@ -101,7 +111,7 @@ const Dashc = () => {
             description="Review and approve late entry requests"
             icon={<Clock size={20} />}
             variant="entry"
-            onAction={() => handleAction('entry-requests')}
+            onAction={() => handleAction('entryrequests')}
             animationDelay="animate-delay-300"
           />
           
@@ -114,6 +124,7 @@ const Dashc = () => {
             onSecondaryAction={handleNewPost}
             secondaryButtonText="New Post"
             animationDelay="animate-delay-400"
+            
           />
         </div>
 

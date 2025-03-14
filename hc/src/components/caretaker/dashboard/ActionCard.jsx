@@ -65,7 +65,7 @@ const ActionCard = ({
               variant="default" 
               size="sm" 
               className={cn(
-                "text-xs font-medium",
+                "text-xs font-medium shadow-md",
                 variant === 'complaint' && "bg-complaint hover:bg-complaint-dark",
                 variant === 'lost' && "bg-lost hover:bg-lost-dark",
                 variant === 'entry' && "bg-entry hover:bg-entry-dark",

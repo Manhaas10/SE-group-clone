@@ -17,7 +17,7 @@ const Card= ({
   return (
     <div
       className={cn(
-        "relative bg-white rounded-xl p-6 shadow-sm card-hover cursor-pointer animate-fade-in",
+        "relative bg-white rounded-xl p-6 shadow-sm card-hover cursor-pointer animate-fade-in ",
         className
       )}
       onClick={onClick}

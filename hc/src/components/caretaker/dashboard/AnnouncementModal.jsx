@@ -194,6 +194,7 @@ const AnnouncementModal = ({
                 </Button>
                 <Button
                   type="submit"
+                   variant="outline"
                   className="bg-announcement hover:bg-announcement-dark"
                   disabled={!title || !content || (type === 'Block Specific' && !block)}
                 >

@@ -29,7 +29,7 @@ const Dashboard= () => {
       <Header username={username} notificationCount={totalNotifications} />
       
       <main className="flex-grow p-6 md:p-8 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
           {/* Profile Card */}
           <Card
             title="Profile"
@@ -38,6 +38,7 @@ const Dashboard= () => {
             iconBgColor="bg-nitc-light-blue"
             onClick={() => navigate('/profile')}
             style={{ animationDelay: "0ms" }}
+            className="shadow-[0_4px_10px_rgba(0,0,255,0.5)]"
           />
           
           {/* Complaints Card */}
@@ -48,6 +49,7 @@ const Dashboard= () => {
             iconBgColor="bg-light-purple"
             onClick={() => navigate('/complaints')}
             style={{ animationDelay: "100ms" }}
+            className="shadow-[0_4px_10px_rgba(128,0,128,0.5)]"
           />
           
           {/* Lost & Found Card */}
@@ -58,6 +60,7 @@ const Dashboard= () => {
             iconBgColor="bg-nitc-light-green"
             onClick={() => navigate('/LandF')}
             style={{ animationDelay: "200ms" }}
+            className="shadow-[0_4px_10px_rgba(0,128,0,0.5)]"
           />
           
           {/* Skill Sharing Card */}
@@ -68,6 +71,7 @@ const Dashboard= () => {
             iconBgColor="bg-nitc-light-yellow"
             onClick={() => navigate("/skill")}
             style={{ animationDelay: "300ms" }}
+            className="shadow-[0_4px_10px_rgba(255,215,0,0.5)]"
           />
           
           {/* Late Entry Card */}
@@ -78,6 +82,7 @@ const Dashboard= () => {
             iconBgColor="bg-nitc-light-purple"
             onClick={() => navigate("/late")}
             style={{ animationDelay: "400ms" }}
+            className="shadow-[0_4px_10px_rgba(128,0,128,0.5)]"
           />
           
           {/* Food Sharing Card */}
@@ -88,6 +93,8 @@ const Dashboard= () => {
             iconBgColor="bg-nitc-light-red"
             onClick={() => navigate("/food")}
             style={{ animationDelay: "500ms" }}
+            className="shadow-[0_4px_10px_rgba(255,0,0,0.5)] /* Pure Red */
+"
           />
         </div>
       </main>

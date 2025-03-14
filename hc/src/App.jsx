@@ -12,6 +12,10 @@ import FoodSharing from "./Pages/student/FoodSharing";
 import NewFoodPost from "./Pages/student/NewFoodPost";
 import Skill from "./Pages/student/skillsharing/skillsharing";
 import Dashc from "./Pages/caretaker/index";
+import LostAndFoundd from "./Pages/caretaker/LostandFound";
+import Complaintss from "./Pages/caretaker/complaints";
+import Announcements from "./Pages/caretaker/Annoucements";
+import LateEntryRequestss from "./Pages/caretaker/lateentry";
 
 import './index.css'
 
@@ -24,7 +28,8 @@ function App() {
       <Route path="/dashboards" element={<Index />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/profile" element={<Profile />} />
-      <Route path="/Complaints" element={<Complaints />} />
+      <Route path="/Complaints" element={<Complaints />} />           
+      <Route path="/comps" element={<Complaintss />} />           
       {/* <Route path="/skill" element={<SkillSharingPage />} /> */}
       <Route path="/LandF" element={<LostAndFound />} />
       <Route path="/newr" element={<NewReport />} />  
@@ -33,6 +38,11 @@ function App() {
       <Route path="/skill" element={<Skill />} />
       <Route path="/nfp" element={<NewFoodPost />} />
       <Route path="/dashboardc" element={<Dashc />} />
+      <Route path="/lndf" element={<LostAndFoundd />} />
+      <Route path="/com" element={<Complaintss />} />
+      <Route path="/announcements" element={<Announcements />} />
+      <Route path="/l" element={<LateEntryRequestss />} />
+
 
 
       </Routes>
