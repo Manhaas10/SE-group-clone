@@ -15,6 +15,7 @@ import Dashc from "./Pages/caretaker/index";
 import LostAndFoundd from "./Pages/caretaker/LostandFound";
 import Complaintss from "./Pages/caretaker/complaints";
 import Announcements from "./Pages/caretaker/Annoucements";
+import Announcementss from "./Pages/student/annoucements";
 import LateEntryRequestss from "./Pages/caretaker/lateentry";
 
 import './index.css'
@@ -42,6 +43,7 @@ function App() {
       <Route path="/com" element={<Complaintss />} />
       <Route path="/announcements" element={<Announcements />} />
       <Route path="/l" element={<LateEntryRequestss />} />
+      <Route path="/sannoucements" element={<Announcementss  />} />
 
 
 

@@ -6,12 +6,14 @@ import {
   Package, 
   Users, 
   Clock, 
-  Utensils 
+  Utensils, 
+  Bell
 } from 'lucide-react';
 import Card from './Card';
 import Header from './Header';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
+import { AnnouncementDashboardCard } from "@/components/student/A/AD";
 const Dashboard= () => {
   const username = "Manhaas";
   const totalNotifications = 2; // Sum of all card notifications
@@ -94,6 +96,16 @@ const Dashboard= () => {
             onClick={() => navigate("/food")}
             style={{ animationDelay: "500ms" }}
             className="shadow-[0_4px_10px_rgba(255,0,0,0.5)] /* Pure Red */
+"
+          />
+          <Card
+            title="Annoucements"
+             description="Important notices and updates"
+            icon={<Bell size={22} className="text-red-500" />}
+            iconBgColor="bg-nitc-light-blue"
+            onClick={() => navigate("/sannoucements")}
+            style={{ animationDelay: "500ms" }}
+            className="shadow-[0_4px_10px_rgba(0,0,255,0.5)] 
 "
           />
         </div>
