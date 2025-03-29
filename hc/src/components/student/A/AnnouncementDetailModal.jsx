@@ -1,5 +1,12 @@
 import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Bookmark, Trash2 } from "lucide-react";
@@ -13,20 +20,31 @@ export const AnnouncementDetailModal = ({
   isAdmin = false,
 }) => {
   const { togglePin, deleteAnnouncement } = useAnnouncements();
-  
+
   if (!announcement) return null;
-  
-  const formattedDate = format(new Date(announcement.createdAt), "MMMM d, yyyy 'at' h:mm a");
-  
+
+  console.log("Raw timestamp from API:", announcement.timestamp); // Debugging log
+
+  let parsedDate = announcement.timestamp ? new Date(announcement.timestamp) : null;
+
+  console.log("Parsed Date Object:", parsedDate); // Debugging log
+
+  const formattedDate =
+    parsedDate && !isNaN(parsedDate)
+      ? format(parsedDate, "MMMM d, yyyy") // ✅ Show only date
+      : "Invalid Date";
+
+  console.log("Final Formatted Date:", formattedDate); // Debugging log
+
   const handlePin = () => {
     togglePin(announcement.id);
   };
-  
+
   const handleDelete = () => {
     deleteAnnouncement(announcement.id);
     onOpenChange(false);
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg p-6">
@@ -43,13 +61,13 @@ export const AnnouncementDetailModal = ({
             Posted on {formattedDate}
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="mt-4 space-y-4">
           <p className="text-gray-700 whitespace-pre-line">
             {announcement.description}
           </p>
         </div>
-        
+
         <DialogFooter className="mt-6 gap-2">
           <Button
             variant="outline"
@@ -60,10 +78,13 @@ export const AnnouncementDetailModal = ({
             )}
             onClick={handlePin}
           >
-            <Bookmark size={16} className={announcement.isPinned ? "fill-current" : ""} />
+            <Bookmark
+              size={16}
+              className={announcement.isPinned ? "fill-current" : ""}
+            />
             {announcement.isPinned ? "Unpin" : "Pin"}
           </Button>
-          
+
           {isAdmin && (
             <Button
               variant="destructive"

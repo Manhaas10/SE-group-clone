@@ -1,131 +1,141 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Clock, Check, Plus, Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import Header from '@/components/student/Header';
-import { toast } from 'sonner';
-import { format } from 'date-fns';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-const Complaints = () => {
-  const navigate = useNavigate();
-  const username = "John Doe";
-  
-  // Sample complaints data
-  const [complaints, setComplaints] = useState([
-    {
-      id: 1,
-      title: "Faulty Fan",
-      category: "Electrical",
-      date: "3/20/2024",
-      description: "The ceiling fan in my room is not working properly",
-      status: "pending"
-    },
-    {
-      id: 2,
-      title: "Water Leakage",
-      category: "Plumbing",
-      date: "3/18/2024",
-      description: "There is water leakage in the bathroom",
-      status: "resolved"
-    }
-  ]);
+"use client"
 
-  const [isNewComplaintView, setIsNewComplaintView] = useState(false);
+import { useState, useEffect } from "react"
+import { ArrowLeft, Clock, Check, Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+import { format } from "date-fns"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import api from "../../api/axios"
+
+const Complaints = () => {
+  const navigate = useNavigate()
+  const [complaints, setComplaints] = useState([])
+  const [isNewComplaintView, setIsNewComplaintView] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [newComplaint, setNewComplaint] = useState({
     title: "",
     category: "Electrical",
     description: "",
-    date: format(new Date(), 'MM/dd/yyyy')
-  });
+    date: format(new Date(), "MM/dd/yyyy"),
+  })
+
+  // Fetch complaints on component mount
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      try {
+        setIsLoading(true)
+        const response = await api.get("/complaints")
+        setComplaints(response.data)
+      } catch (error) {
+        console.error("Error fetching complaints:", error)
+        toast.error("Failed to load complaints")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchComplaints()
+  }, [])
 
   const handleBackClick = () => {
     if (isNewComplaintView) {
-      setIsNewComplaintView(false);
+      setIsNewComplaintView(false)
     } else {
-      navigate('/dashboards');
+      navigate("/dashboards")
     }
-  };
+  }
 
   const handleRegisterComplaint = () => {
-    setIsNewComplaintView(true);
-  };
+    setIsNewComplaintView(true)
+  }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setNewComplaint({
       ...newComplaint,
-      [name]: value
-    });
-  };
+      [name]: value,
+    })
+  }
 
-  const handleSubmit = (e) => {
+  const isFormValid = newComplaint.title.trim() && newComplaint.description.trim();
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!newComplaint.title || !newComplaint.description) {
-      toast.error("Please fill in all required fields");
+
+    if (!isFormValid) {
+      toast.error("Please fill in all required fields.");
       return;
     }
-    
-    const complaint = {
-      id: complaints.length + 1,
-      title: newComplaint.title,
-      category: newComplaint.category,
-      date: newComplaint.date,
-      description: newComplaint.description,
-      status: "pending"
-    };
-    
-    setComplaints([complaint, ...complaints]);
-    setNewComplaint({
-      title: "",
-      category: "Electrical",
-      description: "",
-      date: format(new Date(), 'MM/dd/yyyy')
-    });
-    setIsNewComplaintView(false);
-    
-    toast.success("Complaint registered successfully", {
-      description: "You can track its status here",
-    });
-  };
 
+    try {
+      const complaintData = {
+        room: `Room ${localStorage.getItem("hostelblock") || "Unknown"}`,
+        title: newComplaint.title,
+        description: newComplaint.description,
+        category: newComplaint.category,
+        date: format(newComplaint.date, "yyyy-MM-dd"), // ✅ Properly formatted date
+        is_anonymous: false,
+      };
+      console.log(complaintData);
+      const response = await api.post("/complaints", complaintData);
+      console.log(response.data);
+      
+
+      setComplaints([
+        { ...complaintData, id: response.data.id, status: "pending" },
+        ...complaints,
+      ]);
+
+      // ✅ Reset form but keep the selected category
+      setNewComplaint({
+        title: "",
+        category: newComplaint.category, // Preserve category
+        description: "",
+        date: new Date(),
+      });
+
+      setIsNewComplaintView(false);
+      toast.success("Complaint registered successfully!");
+    } catch (error) {
+      console.error("Error submitting complaint:", error);
+      toast.error("Failed to submit complaint.");
+    }
+  };
   const handleCancel = () => {
-    setIsNewComplaintView(false);
+    setIsNewComplaintView(false)
     setNewComplaint({
       title: "",
       category: "Electrical",
       description: "",
-      date: format(new Date(), 'MM/dd/yyyy')
-    });
-  };
+      date: format(new Date(), "MM/dd/yyyy"),
+    })
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center">
-          <button 
-            onClick={handleBackClick} 
-            className="mr-4 hover:bg-gray-100 p-2 rounded-full transition-colors"
-          >
+          <button onClick={handleBackClick} className="mr-4 hover:bg-gray-100 p-2 rounded-full transition-colors">
             <ArrowLeft size={20} />
           </button>
           <h1 className="text-xl font-bold text-blue-600">NITC HostelConnect</h1>
         </div>
       </div>
-      
+
       <main className="flex-grow py-6 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Complaints</h2>
-            <Button 
+            <Button
               onClick={handleRegisterComplaint}
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg flex items-center"
             >
               <Plus size={18} className="mr-1" /> Register New Complaint
             </Button>
           </div>
-          
+
           {isNewComplaintView ? (
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h3 className="text-lg font-semibold mb-4">New Complaint</h3>
@@ -145,12 +155,12 @@ const Complaints = () => {
                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nitc-blue"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
                       Category
                     </label>
-                    
+
                     <select
                       id="category"
                       name="category"
@@ -168,7 +178,7 @@ const Complaints = () => {
                     </select>
                   </div>
                 </div>
-                
+
                 <div>
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                     Description
@@ -183,81 +193,78 @@ const Complaints = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nitc-blue"
                   ></textarea>
                 </div>
-                
+
                 <div>
                   <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
                     Date
                   </label>
                   <div className="relative">
                     <DatePicker
-                      selected={newComplaint.date}
-                      onChange={(date) => handleInputChange("date", date)}
+                      selected={new Date(newComplaint.date)}
+                      onChange={(date) => setNewComplaint({ ...newComplaint, date: format(date, "MM/dd/yyyy") })}
                       dateFormat="MM/dd/yyyy"
                       className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nitc-blue"
                     />
                   </div>
-                  {/* <div className="relative">
-                    <input
-                      type="text"
-                      id="date"
-                      name="date"
-                      value={newComplaint.date}
-                      onChange={handleInputChange}
-                      className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nitc-blue"
-                      readOnly
-                    />
-                    <Calendar className="absolute right-3 top-2.5 text-gray-400" size={18} />
-                  </div> */}
                 </div>
-                
+
                 <div className="flex justify-start space-x-3 pt-2">
-                  <Button 
+                  <Button
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg flex items-center"
                   >
                     Submit Complaint
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleCancel}
-                  >
+                  <Button type="button" variant="outline" onClick={handleCancel}>
                     Cancel
                   </Button>
                 </div>
               </form>
             </div>
           ) : null}
-          
+
           {/* Complaints List */}
           <div className="space-y-4">
-            {complaints.map((complaint) => (
-              <div 
-                key={complaint.id}
-                className="bg-white rounded-lg p-6 shadow-sm"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold">{complaint.title}</h3>
-                  <div className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                    complaint.status === "pending" 
-                      ? "bg-amber-100 text-amber-700" 
-                      : "bg-green-100 text-green-700"
-                  }`}>
-                    {complaint.status === "pending" ? (
-                      <><Clock size={14} className="mr-1" /> Pending</>
-                    ) : (
-                      <><Check size={14} className="mr-1" /> Resolved</>
-                    )}
-                  </div>
-                </div>
-                <div className="text-sm text-gray-500 mb-2">
-                  Category: {complaint.category} | Date: {complaint.date}
-                </div>
-                <p className="text-gray-700">{complaint.description}</p>
+            {isLoading ? (
+              <div className="text-center py-10">
+                <p className="text-gray-500">Loading complaints...</p>
               </div>
-            ))}
-            
-            {complaints.length === 0 && (
+            ) : complaints.length > 0 ? (
+              complaints.map((complaint) => (
+                <div key={complaint.id} className="bg-white rounded-lg p-6 shadow-sm">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold">{complaint.title}</h3>
+                    <div
+                      className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                        complaint.status === "pending"
+                          ? "bg-amber-100 text-amber-700"
+                          : complaint.status === "inProgress"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {complaint.status === "pending" ? (
+                        <>
+                          <Clock size={14} className="mr-1" /> Pending
+                        </>
+                      ) : complaint.status === "inProgress" ? (
+                        <>
+                          <Clock size={14} className="mr-1" /> In Progress
+                        </>
+                      ) : (
+                        <>
+                          <Check size={14} className="mr-1" /> Resolved
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500 mb-2">
+                    Category: {complaint.category} | Date: {complaint.date}
+                  </div>
+                  <p className="text-gray-700">{complaint.description}</p>
+                </div>
+              ))
+            ) : (
               <div className="text-center py-10 bg-gray-50 rounded-lg">
                 <p className="text-gray-500">No complaints registered yet</p>
               </div>
@@ -266,7 +273,8 @@ const Complaints = () => {
         </div>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default Complaints;
+export default Complaints
+

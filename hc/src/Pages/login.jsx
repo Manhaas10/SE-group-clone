@@ -1,88 +1,188 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff } from "lucide-react";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../components/ui/select";
 
-export default function LoginPage() {
+export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(""); 
-  const navigate = useNavigate(); // Initialize navigation
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [registerData, setRegisterData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    name: "",
+    rollnumber: "",
+    hostelblock: ""
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-//   const handleGoogleSignIn = () => {
-//     window.location.href = "http://localhost:8080/oauth2/authorization/google";
-//   };
+  // Handle login form changes
+  const handleLoginChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData(prev => ({ ...prev, [name]: value }));
+  };
 
-  // const handleAdminLogin = () => {
-  //   if (selectedRole === "Caretaker") {
-  //     navigate("/dashboardc"); // Navigate to Coordinator Dashboard
-  //   }
-  //   else if(selectedRole==="student"){
-  //       navigate("/dashboards");
-  //   }
-  // };
+  // Handle register form changes
+  const handleRegisterChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handle login submission
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    
+    if (!loginData.email || !loginData.password) {
+      setError("Email and password are required");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Store token and user data
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirect based on role
+      if (data.user.role === "user") {
+        navigate("/dashboards");
+      } else if (data.user.role === "admin") {
+        navigate("/dashboardc");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle registration submission
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    // Basic validation
+    if (!registerData.username || !registerData.email || !registerData.password) {
+      setError("Username, email, and password are required");
+      return;
+    }
+
+    if (!registerData.name || !registerData.rollnumber || !registerData.hostelblock) {
+      setError("Name, roll number, and hostel block are required");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(registerData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      // Registration successful, switch to login tab
+      setLoginData({
+        email: registerData.email,
+        password: registerData.password
+      });
+      setError("Registration successful! Please login.");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div 
-      className="flex justify-center items-center w-screen h-screen bg-cover bg-center bg-no-repea"
+      className="flex justify-center items-center w-screen h-screen bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: "url('/image/1.jpg')" }} 
     >
       <div className="bg-black/80 backdrop-blur-md p-8 rounded-xl shadow-lg w-96">
-        <h2 className="text-2xl font-bold text-center text-white">Hostel Connectt</h2>
+        <h2 className="text-2xl font-bold text-center text-white">Hostel Connect</h2>
         <p className="text-sm text-gray-300 text-center mb-4">
           Platform for Student and Hostel Connect
         </p>
 
         {/* Role Selection */}
-        <Tabs defaultValue="student" className="w-full mb-4">
+        <Tabs defaultValue="login" className="w-full mb-4">
           <TabsList className="flex bg-gray-700/50 p-1 rounded-md w-full">
             <TabsTrigger 
-              value="student" 
+              value="login" 
               className="w-1/2 py-2 text-lg font-medium transition 
                          data-[state=active]:bg-white/90 data-[state=active]:shadow 
                          data-[state=active]:text-black data-[state=inactive]:text-gray-300"
             >
-              Student
+              Login
             </TabsTrigger>
             <TabsTrigger 
-              value="Admin" 
+              value="register" 
               className="w-1/2 py-2 text-lg font-medium transition 
                          data-[state=active]:bg-white/90 data-[state=active]:shadow 
                          data-[state=active]:text-black data-[state=inactive]:text-gray-300"
             >
-              Admin
+              Register
             </TabsTrigger>
           </TabsList>
 
-          {/* Student Login (Google Sign-In Only) */}
-          <TabsContent value="student">
-            <div className="mt-4">
-              <Button 
-                variant="outline" 
-                className="w-full flex items-center gap-2 border-gray-500 bg-gray-800 text-white hover:bg-gray-700"
-                onClick={()=>navigate('/dashboards')}
-              >
-                <FcGoogle className="text-lg" /> Sign in with Google
-              </Button>
+          {error && (
+            <div className="mb-4 p-2 bg-red-500/20 text-red-300 text-sm rounded-md">
+              {error}
             </div>
-          </TabsContent>
+          )}
 
-          {/* Admin Login */}
-          <TabsContent value="Admin">
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-white text-left block">Username</label>
+          {/* Login Tab */}
+          <TabsContent value="login">
+            <form onSubmit={handleLogin} className="space-y-3">
+              <div>
+                <label className="text-sm font-medium text-white text-left block">Email</label>
                 <Input 
-                  type="text" 
-                  placeholder="Enter your Username" 
+                  type="email" 
+                  name="email"
+                  value={loginData.email}
+                  onChange={handleLoginChange}
+                  placeholder="Enter your email" 
                   className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
                 />
+              </div>
+              <div>
                 <label className="text-sm font-medium text-white text-left block">Password</label>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={loginData.password}
+                    onChange={handleLoginChange}
                     placeholder="Enter your password"
                     className="border-gray-500 bg-gray-800 text-white placeholder-gray-400 pr-10"
                   />
@@ -94,13 +194,118 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-                <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={()=>navigate('/dashboardc')}
-                >
-                  Login
-                </Button>
               </div>
+              <Button 
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={isLoading}
+              >
+                {isLoading ? "Logging in..." : "Login"}
+              </Button>
+            </form>
+            <div className="mt-4">
+              <Button 
+                variant="outline" 
+                className="w-full flex items-center gap-2 border-gray-500 bg-gray-800 text-white hover:bg-gray-700"
+                onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/google"}
+              >
+                <FcGoogle className="text-lg" /> Sign in with Google
+              </Button>
+            </div>
+          </TabsContent>
+
+          {/* Register Tab */}
+          <TabsContent value="register">
+            <form onSubmit={handleRegister} className="space-y-3">
+              <div>
+                <label className="text-sm font-medium text-white text-left block">Username*</label>
+                <Input 
+                  type="text" 
+                  name="username"
+                  value={registerData.username}
+                  onChange={handleRegisterChange}
+                  placeholder="Enter your username" 
+                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-white text-left block">Email*</label>
+                <Input 
+                  type="email" 
+                  name="email"
+                  value={registerData.email}
+                  onChange={handleRegisterChange}
+                  placeholder="Enter your email" 
+                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-white text-left block">Password*</label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={registerData.password}
+                    onChange={handleRegisterChange}
+                    placeholder="Enter your password"
+                    className="border-gray-500 bg-gray-800 text-white placeholder-gray-400 pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-400"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-white text-left block">Full Name*</label>
+                <Input 
+                  type="text" 
+                  name="name"
+                  value={registerData.name}
+                  onChange={handleRegisterChange}
+                  placeholder="Enter your full name" 
+                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-white text-left block">Roll Number*</label>
+                <Input 
+                  type="text" 
+                  name="rollnumber"
+                  value={registerData.rollnumber}
+                  onChange={handleRegisterChange}
+                  placeholder="Enter your roll number" 
+                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-white text-left block">Hostel Block*</label>
+                <Input 
+                  type="text" 
+                  name="hostelblock"
+                  value={registerData.hostelblock}
+                  onChange={handleRegisterChange}
+                  placeholder="Enter your hostel block" 
+                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
+                />
+              </div>
+
+              <Button 
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={isLoading}
+              >
+                {isLoading ? "Registering..." : "Register"}
+              </Button>
+            </form>
           </TabsContent>
         </Tabs>
 
