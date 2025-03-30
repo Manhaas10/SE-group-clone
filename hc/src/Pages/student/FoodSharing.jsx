@@ -2,19 +2,41 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PlusCircle, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { foodPosts } from "@/lib/data";
 import FoodCard from "@/components/student/FoodCard";
+import api from "../api/axios"; // ✅ Import API instance
+import { toast } from "sonner"; // ✅ Toast notifications
 
 const FoodSharing = () => {
+  const [foodPosts, setFoodPosts] = useState([]); // ✅ State to store posts
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
+    const fetchFoodPosts = async () => {
+      try {
+        const token = localStorage.getItem("token"); // ✅ Get token from localStorage
+        if (!token) {
+          toast.error("Unauthorized: No token found!");
+          setIsLoading(false);
+          return;
+        }
 
-    return () => clearTimeout(timer);
+        const response = await api.get("/foodpost", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data);
+        setFoodPosts(response.data); // ✅ Store API response in state
+      } catch (error) {
+        toast.error("Failed to load food posts!");
+        console.error("Error fetching food posts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFoodPosts();
   }, []);
 
   return (
@@ -43,7 +65,7 @@ const FoodSharing = () => {
             </div>
             <Link
               to="/nfp"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md  "
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md"
             >
               <PlusCircle size={18} />
               New Post
@@ -69,11 +91,11 @@ const FoodSharing = () => {
                 transition={{ duration: 0.2 }}
                 className="space-y-4"
               >
-                {foodPosts.map((post, index) => (
-                  <FoodCard key={post.id} post={post} index={index} />
-                ))}
-                
-                {foodPosts.length === 0 && (
+                {foodPosts.length > 0 ? (
+                  foodPosts.map((post, index) => (
+                    <FoodCard key={post.id} post={post} index={index} />
+                  ))
+                ) : (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

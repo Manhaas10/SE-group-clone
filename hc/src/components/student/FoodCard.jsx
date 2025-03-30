@@ -17,15 +17,15 @@ const FoodCard = ({ post, index }) => {
       <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
         <div>
           <h3 className="text-xl font-semibold mb-1">{post.title}</h3>
-          <p className="text-sm text-gray-600">{post.postedBy} (Room {post.roomNumber})</p>
+          <p className="text-sm text-gray-600">{post.postedBy} (Room-{post.location})</p>
         </div>
         
         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-          post.type === 'offering' 
+          post.post_type === 'Offering Food' 
             ? 'bg-green-100 text-green-800' 
             : 'bg-blue-100 text-blue-800'
         }`}>
-          {post.type === 'offering' ? 'Offering' : 'Requesting'}
+          {post.post_type === 'Offering Food' ? 'Offering' : 'Requesting'}
         </span>
       </div>
       

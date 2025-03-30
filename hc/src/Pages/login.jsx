@@ -55,6 +55,7 @@ export default function Login() {
       });
 
       const data = await response.json();
+      console.log(data);
 
       if (!response.ok) {
         throw new Error(data.error || "Login failed");
@@ -63,6 +64,7 @@ export default function Login() {
       // Store token and user data
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("userId", data.user.id);
 
       // Redirect based on role
       if (data.user.role === "user") {

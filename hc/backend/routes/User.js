@@ -52,7 +52,7 @@ router.post("/register", async (req, res) => {
         expiresIn: "1h",
       });
   
-      res.json({ message: "Login successful", token, user: { username: user.username, role: user.role } });
+      res.json({ message: "Login successful", token, user: { username: user.username, role: user.role,id: user.id } });
     });
   });
 

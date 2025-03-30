@@ -8,7 +8,8 @@ const lateEntryRouter = require("./routes/LateEntry");
 const userRouter = require("./routes/User");
 const complaintsRouter = require("./routes/Complaints");
 const lostandfoundRouter = require("./routes/LostandFound");
-
+const foodPostRouter = require('./routes/foodpost');
+const skillpostRoutes = require("./routes/skillpost");
 const app = express();
 
 // Middleware
@@ -24,7 +25,9 @@ app.use("/api/late-entry", lateEntryRouter);
 app.use("/api/user", userRouter);
 app.use("/api/complaints", complaintsRouter);
 app.use("/api/lost-found", lostandfoundRouter);
+app.use('/api/foodpost', foodPostRouter);
 
+app.use("/api/skillpost", skillpostRoutes);
 // Root Route
 app.get("/", (req, res) => {
   res.send("Hello World!");
