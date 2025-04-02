@@ -4,7 +4,6 @@ import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import api from "../api/axios";
 import { Textarea } from "@/components/ui/textarea";
 
 const postTypes = [
@@ -15,51 +14,23 @@ const postTypes = [
 const NewFoodPost = () => {
   const navigate = useNavigate();
   const [postType, setPostType] = useState("offering");
-  const [roomNo, setRoomNo] = useState(""); // ✅ Added roomNo state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!roomNo.trim() || !title.trim() || !description.trim()) {
+    // Validate form
+    if (!title.trim() || !description.trim()) {
       toast.error("Please fill all required fields");
       return;
     }
-  
-    const postData = {
-      location: roomNo,
-      title,
-      description,
-      price: price || "Free",
-      post_type: postType === "offering" ? "Offering Food" : "Requesting Food",
-    };
-  
-    try {
-
-      const token = localStorage.getItem("token");
-       console.log(token);
-       console.log(postData);
-      if (!token) {
-        throw new Error("No authentication token found. Please log in.");
-      }
-  
-      const response = await api.post("/foodpost", postData, {
-        "Content-Type": "application/json",
-        headers: { Authorization: `Bearer ${token}` }, // ✅ Send token explicitly
-      });
-      console.log(response.data);
-  
-      toast.success("Food sharing post created successfully!");
-      setTimeout(() => navigate("/food"), 500);
-    } catch (error) {
-      console.error("Error creating post:", error.response?.data || error.message);
-      toast.error(error.response?.data?.message || "Authentication failed. Please log in again.");
-    }
+    
+    // In a real app, we would save the post to a database here
+    toast.success("Food sharing post created successfully!");
+    setTimeout(() => navigate("/food"), 500);
   };
-  
-  
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -110,19 +81,6 @@ const NewFoodPost = () => {
                 </div>
               </div>
               
-              {/* ✅ Fixed Room No field */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Room No</label>
-                <input
-                  type="text"
-                  value={roomNo}
-                  onChange={(e) => setRoomNo(e.target.value)}
-                  placeholder="Enter Room No"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                  required
-                />
-              </div>
-
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Title</label>
                 <input
@@ -131,7 +89,6 @@ const NewFoodPost = () => {
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter title"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                  required
                 />
               </div>
               
@@ -142,7 +99,6 @@ const NewFoodPost = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe the food item"
                   className="min-h-[100px]"
-                  required
                 />
               </div>
               

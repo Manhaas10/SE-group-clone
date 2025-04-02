@@ -1,9 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import api from "@/Pages/api/axios";
+import { X } from "lucide-react";
 
 const categories = [
-  "Programming", "Music", "Sports", "Art", "Languages", "Academics", "Others"
+  "Programming",
+  "Music",
+  "Sports",
+  "Art",
+  "Languages",
+  "Academics",
+  "Others"
 ];
 
 const postTypes = [
@@ -11,90 +17,123 @@ const postTypes = [
   { value: "SEEKING", label: "Seeking Skill" }
 ];
 
-const NewPostForm = ({ onClose, onPostSuccess }) => {
+
+
+const NewPostForm = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-    postType: "OFFERING",
+    type: "OFFERING",
     category: "",
     title: "",
     description: "",
-    timings: "",
-    venue: "",
-    maxPeople: 1, // ✅ Default value for max participants
+    availability: "",
+    showCategoryDropdown: false,
+    showTypeDropdown: false,
   });
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSelectCategory = (category) => {
+    setFormData(prev => ({
+      ...prev,
+      category,
+      showCategoryDropdown: false
+    }));
+  };
+
+  const handleSelectType = (type) => {
+    setFormData(prev => ({
+      ...prev,
+      type,
+      showTypeDropdown: false
+    }));
+  };
+
+  const toggleDropdown = (dropdownName) => {
+    setFormData(prev => ({
+      ...prev,
+      [dropdownName]: !prev[dropdownName],
+      ...(dropdownName === 'showCategoryDropdown' ? { showTypeDropdown: false } : { showCategoryDropdown: false })
+    }));
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    onSubmit({
+      type: formData.type,
+      category: formData.category,
+      title: formData.title,
+      description: formData.description,
+      availability: formData.availability,
+    });
+  };
 
-    console.log("Submitting Data:", formData); // ✅ Debugging
-
-    try {
-      const response = await api.post("/skillpost", formData, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      console.log(response.data);
-      onPostSuccess(response.data); // Notify parent component
-      onClose(); // Close modal
-    } catch (error) {
-      console.error("API Error:", error.response?.data || error);
-      setError(error.response?.data?.message || "Failed to create post");
-    } finally {
-      setLoading(false);
-    }
+  const getTypeLabel = () => {
+    const type = postTypes.find(t => t.value === formData.type);
+    return type ? type.label : "Select type";
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-border p-6">
       <h2 className="text-xl font-bold mb-4">New Skill Sharing Post</h2>
-      {error && <p className="text-red-500 mb-2">{error}</p>}
       
       <form onSubmit={handleSubmit}>
-        {/* Post Type */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Post Type</label>
-          <select
-            name="postType"
-            value={formData.postType}
-            onChange={handleInputChange}
-            className="w-full px-4 py-2 border rounded-md"
-          >
-            {postTypes.map((type) => (
-              <option key={type.value} value={type.value}>{type.label}</option>
-            ))}
-          </select>
+          <div className="relative">
+            <button
+              type="button"
+              className="w-full text-left px-4 py-2 border border-gray-300 rounded-md flex justify-between items-center"
+              onClick={() => toggleDropdown('showTypeDropdown')}
+            >
+              {getTypeLabel()}
+              <span className="text-gray-400">▼</span>
+            </button>
+            {formData.showTypeDropdown && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                {postTypes.map(type => (
+                  <div
+                    key={type.value}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectType(type.value)}
+                  >
+                    {type.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Category */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Category</label>
-          <select
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            className="w-full px-4 py-2 border rounded-md"
-            required
-          >
-            <option value="">Select category</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
+          <div className="relative">
+            <button
+              type="button"
+              className="w-full text-left px-4 py-2 border border-gray-300 rounded-md flex justify-between items-center"
+              onClick={() => toggleDropdown('showCategoryDropdown')}
+            >
+              {formData.category || "Select category"}
+              <span className="text-gray-400">▼</span>
+            </button>
+            {formData.showCategoryDropdown && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {categories.map(category => (
+                  <div
+                    key={category}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectCategory(category)}
+                  >
+                    {category}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Title */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Title</label>
           <input
@@ -103,72 +142,43 @@ const NewPostForm = ({ onClose, onPostSuccess }) => {
             value={formData.title}
             onChange={handleInputChange}
             placeholder="What skill are you offering/seeking?"
-            className="w-full px-4 py-2 border rounded-md"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md"
             required
           />
         </div>
 
-        {/* Description (Optional) */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Description</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleInputChange}
-            placeholder="Provide more details..."
-            className="w-full px-4 py-2 border rounded-md h-24 resize-none"
+            placeholder="Provide more details about your skill sharing post"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md h-24 resize-none"
+            required
           />
         </div>
 
-        {/* Venue */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Venue</label>
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-1">Availability</label>
           <input
             type="text"
-            name="venue"
-            value={formData.venue}
+            name="availability"
+            value={formData.availability}
             onChange={handleInputChange}
-            placeholder="Location"
-            className="w-full px-4 py-2 border rounded-md"
+            placeholder="When are you available? (e.g., Weekends, Evening 6-8 PM)"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md"
             required
           />
         </div>
 
-        {/* Timings */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Timings</label>
-          <input
-            type="text"
-            name="timings"
-            value={formData.timings}
-            onChange={handleInputChange}
-            placeholder="e.g., Weekends, 6-8 PM"
-            className="w-full px-4 py-2 border rounded-md"
-            required
-          />
-        </div>
-
-        {/* Max Participants (Editable) */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Max Participants</label>
-          <input
-            type="number"
-            name="maxPeople"
-            value={formData.maxPeople}
-            onChange={handleInputChange}
-            min="1"
-            max="100"
-            className="w-full px-4 py-2 border rounded-md"
-            required
-          />
-        </div>
-
-        {/* Buttons */}
         <div className="flex gap-3">
-          <Button type="submit" variant="outline" className="bg-blue-600 text-white" disabled={loading}>
-            {loading ? "Posting..." : "Create Post"}
+          <Button type="submit" variant="outline" className="bg-blue-600 text-white">
+            Create Post
           </Button>
-          <Button type="button" onClick={onClose}>Cancel</Button>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
         </div>
       </form>
     </div>
