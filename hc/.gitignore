@@ -10,7 +10,6 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-db.js
 *.local
 
 # Editor directories and files
@@ -23,3 +22,5 @@ db.js
 *.njsproj
 *.sln
 *.sw?
+/backend/.env
+/backend/db.js

@@ -8,38 +8,24 @@ import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [registerData, setRegisterData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    name: "",
-    rollnumber: "",
-    hostelblock: ""
-  });
+  const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Handle login form changes
+  // Handle login form changes for CareTaker login
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
-    setLoginData(prev => ({ ...prev, [name]: value }));
+    setLoginData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle register form changes
-  const handleRegisterChange = (e) => {
-    const { name, value } = e.target;
-    setRegisterData(prev => ({ ...prev, [name]: value }));
-  };
-
-  // Handle login submission
+  // Handle login submission for CareTaker
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    
-    if (!loginData.email || !loginData.password) {
-      setError("Email and password are required");
+
+    if (!loginData.username || !loginData.password) {
+      setError("Username and password are required");
       return;
     }
 
@@ -55,7 +41,6 @@ export default function Login() {
       });
 
       const data = await response.json();
-      console.log(data);
 
       if (!response.ok) {
         throw new Error(data.error || "Login failed");
@@ -64,7 +49,6 @@ export default function Login() {
       // Store token and user data
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("userId", data.user.id);
 
       // Redirect based on role
       if (data.user.role === "user") {
@@ -79,56 +63,10 @@ export default function Login() {
     }
   };
 
-  // Handle registration submission
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    // Basic validation
-    if (!registerData.username || !registerData.email || !registerData.password) {
-      setError("Username, email, and password are required");
-      return;
-    }
-
-    if (!registerData.name || !registerData.rollnumber || !registerData.hostelblock) {
-      setError("Name, roll number, and hostel block are required");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("http://localhost:5000/api/user/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(registerData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
-      }
-
-      // Registration successful, switch to login tab
-      setLoginData({
-        email: registerData.email,
-        password: registerData.password
-      });
-      setError("Registration successful! Please login.");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <div 
+    <div
       className="flex justify-center items-center w-screen h-screen bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/image/1.jpg')" }} 
+      style={{ backgroundImage: "url('/image/1.jpg')" }}
     >
       <div className="bg-black/80 backdrop-blur-md p-8 rounded-xl shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center text-white">Hostel Connect</h2>
@@ -137,23 +75,23 @@ export default function Login() {
         </p>
 
         {/* Role Selection */}
-        <Tabs defaultValue="login" className="w-full mb-4">
+        <Tabs defaultValue="student" className="w-full mb-4">
           <TabsList className="flex bg-gray-700/50 p-1 rounded-md w-full">
-            <TabsTrigger 
-              value="login" 
+            <TabsTrigger
+              value="student"
               className="w-1/2 py-2 text-lg font-medium transition 
                          data-[state=active]:bg-white/90 data-[state=active]:shadow 
                          data-[state=active]:text-black data-[state=inactive]:text-gray-300"
             >
-              Login
+              Student
             </TabsTrigger>
-            <TabsTrigger 
-              value="register" 
+            <TabsTrigger
+              value="caretaker"
               className="w-1/2 py-2 text-lg font-medium transition 
                          data-[state=active]:bg-white/90 data-[state=active]:shadow 
                          data-[state=active]:text-black data-[state=inactive]:text-gray-300"
             >
-              Register
+              CareTaker
             </TabsTrigger>
           </TabsList>
 
@@ -163,18 +101,33 @@ export default function Login() {
             </div>
           )}
 
-          {/* Login Tab */}
-          <TabsContent value="login">
+          {/* Student Tab - Google Auth */}
+          <TabsContent value="student">
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                className="w-full flex items-center gap-2 border-gray-500 bg-gray-800 text-white hover:bg-gray-700"
+                onClick={() =>
+                  window.location.href = "http://localhost:5000/auth/google"
+                }
+              >
+                <FcGoogle className="text-lg" /> Sign in with Google
+              </Button>
+            </div>
+          </TabsContent>
+
+          {/* CareTaker Tab - Local Auth */}
+          <TabsContent value="caretaker">
             <form onSubmit={handleLogin} className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-white text-left block">Email</label>
-                <Input 
-                  type="email" 
-                  name="email"
-                  value={loginData.email}
+                <label className="text-sm font-medium text-white text-left block">Username</label>
+                <Input
+                  type="text"
+                  name="username"
+                  value={loginData.username}
                   onChange={handleLoginChange}
-                  placeholder="Enter your email" 
-                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
+                  placeholder="Enter your username"
+                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400"
                 />
               </div>
               <div>
@@ -197,115 +150,12 @@ export default function Login() {
                   </button>
                 </div>
               </div>
-              <Button 
+              <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={isLoading}
               >
                 {isLoading ? "Logging in..." : "Login"}
-              </Button>
-            </form>
-            <div className="mt-4">
-              <Button 
-                variant="outline" 
-                className="w-full flex items-center gap-2 border-gray-500 bg-gray-800 text-white hover:bg-gray-700"
-                onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/google"}
-              >
-                <FcGoogle className="text-lg" /> Sign in with Google
-              </Button>
-            </div>
-          </TabsContent>
-
-          {/* Register Tab */}
-          <TabsContent value="register">
-            <form onSubmit={handleRegister} className="space-y-3">
-              <div>
-                <label className="text-sm font-medium text-white text-left block">Username*</label>
-                <Input 
-                  type="text" 
-                  name="username"
-                  value={registerData.username}
-                  onChange={handleRegisterChange}
-                  placeholder="Enter your username" 
-                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-white text-left block">Email*</label>
-                <Input 
-                  type="email" 
-                  name="email"
-                  value={registerData.email}
-                  onChange={handleRegisterChange}
-                  placeholder="Enter your email" 
-                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-white text-left block">Password*</label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={registerData.password}
-                    onChange={handleRegisterChange}
-                    placeholder="Enter your password"
-                    className="border-gray-500 bg-gray-800 text-white placeholder-gray-400 pr-10"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-3 flex items-center text-gray-400"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-white text-left block">Full Name*</label>
-                <Input 
-                  type="text" 
-                  name="name"
-                  value={registerData.name}
-                  onChange={handleRegisterChange}
-                  placeholder="Enter your full name" 
-                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-white text-left block">Roll Number*</label>
-                <Input 
-                  type="text" 
-                  name="rollnumber"
-                  value={registerData.rollnumber}
-                  onChange={handleRegisterChange}
-                  placeholder="Enter your roll number" 
-                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-white text-left block">Hostel Block*</label>
-                <Input 
-                  type="text" 
-                  name="hostelblock"
-                  value={registerData.hostelblock}
-                  onChange={handleRegisterChange}
-                  placeholder="Enter your hostel block" 
-                  className="border-gray-500 bg-gray-800 text-white placeholder-gray-400" 
-                />
-              </div>
-
-              <Button 
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={isLoading}
-              >
-                {isLoading ? "Registering..." : "Register"}
               </Button>
             </form>
           </TabsContent>

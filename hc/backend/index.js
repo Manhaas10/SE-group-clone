@@ -8,14 +8,18 @@ const lateEntryRouter = require("./routes/LateEntry");
 const userRouter = require("./routes/User");
 const complaintsRouter = require("./routes/Complaints");
 const lostandfoundRouter = require("./routes/LostandFound");
-const foodPostRouter = require('./routes/foodpost');
-const skillpostRoutes = require("./routes/skillpost");
+const { router: authRoutes, excludeGoogleOAuthRoutes } = require("./middleware/auth");
+const cookieParser = require("cookie-parser");
+
 const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
-
+app.use(cors({
+  origin: "http://localhost:5173", // Your frontend URL
+  credentials: true // ✅ Allow cookies
+}));
+app.use(cookieParser());
 // Serve uploaded files statically
 app.use("/uploads", express.static("uploads"));
 
@@ -25,13 +29,23 @@ app.use("/api/late-entry", lateEntryRouter);
 app.use("/api/user", userRouter);
 app.use("/api/complaints", complaintsRouter);
 app.use("/api/lost-found", lostandfoundRouter);
-app.use('/api/foodpost', foodPostRouter);
 
-app.use("/api/skillpost", skillpostRoutes);
 // Root Route
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
+app.get("/set-cookie", (req, res) => {
+  res.cookie("testCookie", "helloWorld", { httpOnly: true, sameSite: "Strict" });
+  res.send("Cookie Set!");
+});
+
+app.get("/get-cookie", (req, res) => {
+  console.log("Cookies:", req.cookies);
+  res.json(req.cookies);
+});
+// Apply middleware
+app.use(excludeGoogleOAuthRoutes);
+app.use("/auth", authRoutes); 
 
 // Start the server
 const PORT = process.env.PORT || 5000;
