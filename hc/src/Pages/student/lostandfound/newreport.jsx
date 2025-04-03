@@ -25,6 +25,7 @@ const NewReport = () => {
     description: "",
     location: "",
     date: format(new Date(), "yyyy-MM-dd"),
+    image: null, // New state for the image file
   })
   
   const [errors, setErrors] = useState({})
@@ -36,6 +37,10 @@ const NewReport = () => {
 
   const handleSelectChange = (name, value) => {
     setFormData({ ...formData, [name]: value })
+  }
+
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, image: e.target.files[0] })
   }
 
   const validateForm = () => {
@@ -63,16 +68,24 @@ const NewReport = () => {
 
     try {
       const formattedDate = format(new Date(formData.date), "yyyy-MM-dd")
-      const itemData = {
-        name: formData.title,
-        description: formData.description,
-        location: formData.location,
-        status: formData.type.toLowerCase(),
-        additional_details: `Category: ${formData.category}`,
-        date: formattedDate,
+      
+      const formDataToSend = new FormData()
+      formDataToSend.append("name", formData.title)
+      formDataToSend.append("description", formData.description)
+      formDataToSend.append("location", formData.location)
+      formDataToSend.append("status", formData.type.toLowerCase())
+      formDataToSend.append("additional_details", `Category: ${formData.category}`)
+      formDataToSend.append("date", formattedDate)
+      
+      if (formData.image) {
+        formDataToSend.append("image", formData.image) // Append image only if selected
       }
 
-      await api.post("/lost-found", itemData)
+      await api.post("/lost-found", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
 
       toast.success("Report submitted successfully!")
       navigate("/LandF")
@@ -148,6 +161,12 @@ const NewReport = () => {
               {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
             </div>
 
+            {/* Image Upload */}
+            <div className="space-y-2">
+              <label htmlFor="image" className="block text-sm font-medium">Upload Image (optional)</label>
+              <Input type="file" accept="image/*" onChange={handleFileChange} />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Location */}
               <div className="space-y-2">
@@ -164,7 +183,6 @@ const NewReport = () => {
               </div>
             </div>
 
-            {/* Submit Buttons */}
             <div className="flex justify-between pt-2">
               <Button type="button" variant="outline" onClick={() => navigate("/LandF")} disabled={isSubmitting}>
                 Cancel

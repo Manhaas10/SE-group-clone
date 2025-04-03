@@ -20,6 +20,7 @@ const LostAndFound = () => {
       try {
         setIsLoading(true)
         const response = await api.get("/lost-found")
+        console.log(response.data);
         setItems(response.data)
       } catch (error) {
         console.error("Error fetching lost and found items:", error)

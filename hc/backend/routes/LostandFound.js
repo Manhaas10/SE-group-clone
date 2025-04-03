@@ -1,17 +1,28 @@
-const { auth } = require("../middleware/auth");
-
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
+const { auth } = require("../middleware/auth");
+const multer = require("multer");
+
+// Multer setup: Store file in memory as a buffer
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+
+// 🔹 GET All Items
 router.get("/", (req, res) => {
-  db.query("SELECT * FROM lost_found_items ORDER BY date DESC", (err, results) => {
-    if (err) {  
-      return res.status(500).json({ error: "Database error" });
+  db.query("SELECT id, name, description, location, status, reported_by, additional_details, date,image FROM lost_found_items ORDER BY date DESC",
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: "Database error" });
+      }
+      res.json(results);
     }
-    res.json(results);
-  });
+  );
 });
 
+
+// 🔹 GET a Single Item (With Image)
 router.get("/:id", (req, res) => {
   db.query(
     "SELECT * FROM lost_found_items WHERE id = ?",
@@ -23,43 +34,53 @@ router.get("/:id", (req, res) => {
       if (results.length === 0) {
         return res.status(404).json({ error: "Item not found" });
       }
-      res.json(results[0]);
+
+      // Convert buffer to base64 string
+      const item = results[0];
+      if (item.image) {
+        item.image = `data:image/jpeg;base64,${item.image.toString("base64")}`;
+      }
+
+      res.json(item);
     }
   );
 });
 
-router.post("/", auth, (req, res) => {
-  const { name, description, location, status, additional_details, image_url } = req.body;
-  
+
+// 🔹 POST New Lost/Found Item (With Image)
+router.post("/", auth, upload.single("image"), (req, res) => {
+  const { name, description, location, status, additional_details } = req.body;
+  const image = req.file ? req.file.buffer : null; // Get image buffer
+
   if (!name || !description || !location || !status) {
     return res.status(400).json({ error: "Required fields missing" });
   }
 
   db.query(
-    "INSERT INTO lost_found_items (name, description, location, status, reported_by, additional_details, image_url, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    [name, description, location, status, req.user.email, additional_details, image_url, req.user.id],
+    "INSERT INTO lost_found_items (name, description, location, status, reported_by, additional_details, image, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    [name, description, location, status, req.user.email, additional_details, image, req.user.id],
     (err, result) => {
       if (err) {
         return res.status(500).json({ error: "Failed to create item" });
       }
-      res.status(201).json({ 
-        message: "Item created successfully", 
-        id: result.insertId 
-      });
+      res.status(201).json({ message: "Item created successfully", id: result.insertId });
     }
   );
 });
 
-router.put("/:id", auth, (req, res) => {
-  const { name, description, location, status, additional_details, image_url } = req.body;
-  
+
+// 🔹 UPDATE Lost/Found Item (With Image)
+router.put("/:id", auth, upload.single("image"), (req, res) => {
+  const { name, description, location, status, additional_details } = req.body;
+  const image = req.file ? req.file.buffer : null;
+
   if (!name || !description || !location || !status) {
     return res.status(400).json({ error: "Required fields missing" });
   }
 
   db.query(
-    "UPDATE lost_found_items SET name = ?, description = ?, location = ?, status = ?, additional_details = ?, image_url = ? WHERE id = ?",
-    [name, description, location, status, additional_details, image_url, req.params.id],
+    "UPDATE lost_found_items SET name = ?, description = ?, location = ?, status = ?, additional_details = ?, image = ? WHERE id = ?",
+    [name, description, location, status, additional_details, image, req.params.id],
     (err, result) => {
       if (err) {
         return res.status(500).json({ error: "Failed to update item" });
@@ -72,9 +93,11 @@ router.put("/:id", auth, (req, res) => {
   );
 });
 
+
+// 🔹 UPDATE Status of an Item
 router.patch("/:id/status", auth, (req, res) => {
   const { status } = req.body;
-  
+
   if (!status || !['lost', 'found', 'claimed'].includes(status)) {
     return res.status(400).json({ error: "Valid status required" });
   }
@@ -95,6 +118,7 @@ router.patch("/:id/status", auth, (req, res) => {
 });
 
 
+// 🔹 DELETE Lost/Found Item
 router.delete("/:id", auth, (req, res) => {
   db.query(
     "DELETE FROM lost_found_items WHERE id = ?",
@@ -110,5 +134,6 @@ router.delete("/:id", auth, (req, res) => {
     }
   );
 });
+
 
 module.exports = router;
