@@ -55,7 +55,7 @@ passport.use(
                         "manhaasapp",
                         { expiresIn: "1h" }
                     );
-                    console.log(token);
+                    // console.log(token);
 
                     done(null, { user, token });
                 });

@@ -3,7 +3,10 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../db");
-
+const { auth } = require("../middleware/auth");
+router.get("/me", auth, (req, res) => {
+  res.json({ userId: req.user.id });
+});
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
   console.log(req.body);
@@ -26,7 +29,7 @@ router.post("/login", (req, res) => {
       expiresIn: "1h",
     });
 
-    res.json({ message: "Login successful", token, user: { username: user.username, role: user.role } });
+    res.json({ message: "Login successful", token, user: { username: user.username, id: user.id, email: user.email, role: user.role} });
   });
 });
 
