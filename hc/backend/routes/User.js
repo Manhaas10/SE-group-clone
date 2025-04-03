@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const db = require("../db");
 const { auth } = require("../middleware/auth");
 router.get("/me", auth, (req, res) => {
-  res.json({ userId: req.user.id });
+  res.json({ userId: req.user.id,username: req.user.username,block:req.user.hostelblock});
 });
 router.post("/login", (req, res) => {
   const { username, password } = req.body;

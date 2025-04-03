@@ -51,14 +51,10 @@ const LateEntryRequest = () => {
     formData.append("attachment", file); // ✅ Use "attachment" to match Multer config
   
     try {
-      const token = localStorage.getItem("token");
-      console.log("Sending token:", token);
   
       const response = await fetch("http://localhost:5000/api/late-entry", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // ✅ Token is correct
-        },
+        credentials: "include",
         body: formData, // ✅ Send correct formData
       });
   
@@ -168,7 +164,7 @@ const LateEntryRequest = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/late")}
                 className="border-gray-200 text-gray-700"
               >
                 Cancel

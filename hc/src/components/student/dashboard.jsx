@@ -9,15 +9,58 @@ import {
   Utensils, 
   Bell
 } from 'lucide-react';
+import { useState, useEffect } from "react"
 import Card from './Card';
 import Header from './Header';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
+import api from "@/Pages/api/axios";
 import { AnnouncementDashboardCard } from "@/components/student/A/AD";
+import ActivityItem from "@/components/student/ActivityItem"
 const Dashboard= () => {
-  const username = "Manhaas";
+ 
+    const [isLoading, setIsLoading] = useState(true);
+    const [username, setUsername] = useState();
+    
   const totalNotifications = 2; // Sum of all card notifications
   const navigate=useNavigate();
+  // const [isLoading, setIsLoading] = useState(true);
+  const [announcements, setAnnouncements] = useState([]);
+  const [user, setUser] = useState(null);
+  // const navigate = useNavigate();
+
+  // Fetch Announcements
+    useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          const response = await api.get("/user/me", { withCredentials: true });
+          console.log(response.data.username);
+          setUser(response.data);
+          
+          setUsername(response.data.username);
+        } catch (error) {
+          console.error("Failed to fetch user :", error);
+        }
+      };
+      fetchUser();
+    }, []);
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/announcements"); // Fetch from backend
+        console.log(response.data);
+        setAnnouncements(response.data);
+      } catch (error) {
+        console.error("Error fetching announcements:", error);
+        toast.error("Failed to load announcements");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
   const handleCardClick = (title) => {
     toast(`${title} card clicked`, {
       description: "This feature is coming soon!",
@@ -25,6 +68,11 @@ const Dashboard= () => {
     });
     
   };
+  const filteredAnnouncements = announcements.filter(item => {
+    const categoryBlock = item.category.replace("Block ", ""); // Extract "A" from "Block A"
+    return item.category === "All Blocks" || categoryBlock === user?.block;
+  });
+  
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -109,7 +157,38 @@ const Dashboard= () => {
 "
           />
         </div>
+        <div className="mt-10">
+          <div className="glass p-6 rounded-xl shadow-md">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Clock size={18} className="text-muted-foreground" />
+              Announcements
+            </h2>
+            <div className="divide-y">
+              {isLoading ? (
+                <div className="py-4 text-center">
+                  <p className="text-muted-foreground">Loading announcements...</p>
+                </div>
+              ) : filteredAnnouncements.length > 0 ? (
+                filteredAnnouncements.slice(0, 4).map((item, index) => (
+                  <ActivityItem
+                    key={item.id}
+                    title={item.title}
+                    color="blue"
+                    content={item.content}
+                    time={new Date(item.timestamp).toLocaleString()}
+                    className={`animate-delay-${index * 100}`}
+                  />
+                ))
+              ) : (
+                <div className="py-4 text-center">
+                  <p className="text-muted-foreground">No relevant announcements</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </main>
+     
       
       {/* <footer className="py-4 text-center text-sm text-gray-500">
         <p>© 2023 NITC HostelConnect. All rights reserved.</p>

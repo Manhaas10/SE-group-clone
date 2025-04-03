@@ -7,7 +7,7 @@ import Complaints from "./Pages/student/complaints/complaints";
 // import SkillSharingPage from "./Pages/student/skillsharing";
 import LostAndFound from "./Pages/student/lostandfound/LandF";
 import NewReport from "./Pages/student/lostandfound/newreport";
-import LateEntryRequest from "./Pages/student/LateEntryRequest";
+import Late from "./Pages/student/late";
 import FoodSharing from "./Pages/student/FoodSharing";
 import NewFoodPost from "./Pages/student/NewFoodPost";
 import Skill from "./Pages/student/skillsharing/skillsharing";
@@ -17,6 +17,7 @@ import Complaintss from "./Pages/caretaker/complaints";
 import Announcements from "./Pages/caretaker/Annoucements";
 import Announcementss from "./Pages/student/annoucements";
 import LateEntryRequestss from "./Pages/caretaker/lateentry";
+import LateEntryRequest from "./Pages/student/LateEntryRequest";
 
 import './index.css'
 
@@ -34,7 +35,7 @@ function App() {
       {/* <Route path="/skill" element={<SkillSharingPage />} /> */}
       <Route path="/LandF" element={<LostAndFound />} />
       <Route path="/newr" element={<NewReport />} />  
-      <Route path="/Late" element={<LateEntryRequest />} />  
+      <Route path="/Late" element={<Late />} />  
       <Route path="/food" element={<FoodSharing />} />  
       <Route path="/skill" element={<Skill />} />
       <Route path="/nfp" element={<NewFoodPost />} />
@@ -43,6 +44,7 @@ function App() {
       <Route path="/com" element={<Complaintss />} />
       <Route path="/announcements" element={<Announcements />} />
       <Route path="/l" element={<LateEntryRequestss />} />
+      <Route path="/ll" element={<LateEntryRequest />} />
       <Route path="/sannoucements" element={<Announcementss  />} />
 
 

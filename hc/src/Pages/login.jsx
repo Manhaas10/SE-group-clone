@@ -36,9 +36,10 @@ export default function Login() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // "Authorization": `Bearer ${localStorage.getItem("token") || ""}` // Include token if available
         },
         body: JSON.stringify(loginData),
-      });
+      })
 
       const data = await response.json();
 

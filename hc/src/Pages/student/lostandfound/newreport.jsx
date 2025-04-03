@@ -116,26 +116,42 @@ const NewReport = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Report Type */}
               <div className="space-y-2">
-                <label htmlFor="type" className="block text-sm font-medium">Report Type</label>
-                <Select onValueChange={(value) => handleSelectChange("type", value)} value={formData.type}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Report Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="LOST">Lost Item</SelectItem>
-                    <SelectItem value="FOUND">Found Item</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+  <label htmlFor="type" className="block text-sm font-semibold text-gray-700">
+    Report Type
+  </label>
+  <Select 
+    onValueChange={(value) => handleSelectChange("type", value)} 
+    value={formData.type}
+  >
+    <SelectTrigger >
+      <SelectValue placeholder="Select Report Type" />
+    </SelectTrigger>
+    <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
+      <SelectItem 
+        value="LOST" 
+        className="px-4 py-2 hover:bg-gray-100 transition-all"
+      >
+        Lost Item
+      </SelectItem>
+      <SelectItem 
+        value="FOUND" 
+        className="px-4 py-2 hover:bg-gray-100 transition-all"
+      >
+        Found Item
+      </SelectItem>
+    </SelectContent>
+  </Select>
+</div>
+
 
               {/* Category */}
               <div className="space-y-2">
                 <label htmlFor="category" className="block text-sm font-medium">Category</label>
                 <Select onValueChange={(value) => handleSelectChange("category", value)} value={formData.category}>
-                  <SelectTrigger>
+                  <SelectTrigger >
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
                     {CATEGORIES.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}

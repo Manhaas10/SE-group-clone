@@ -11,7 +11,7 @@ const upload = multer({ storage: storage });
 
 // 🔹 GET All Items
 router.get("/", (req, res) => {
-  db.query("SELECT id, name, description, location, status, reported_by, additional_details, date,image FROM lost_found_items ORDER BY date DESC",
+  db.query("SELECT id, name, description, location, status, reported_by, additional_details, date FROM lost_found_items ORDER BY date DESC",
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: "Database error" });

@@ -152,7 +152,7 @@ const LostAndFoundd = () => {
                           <SelectTrigger className="w-[120px]">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
                             <SelectItem value="lost">Lost</SelectItem>
                             <SelectItem value="found">Found</SelectItem>
                             <SelectItem value="claimed">Claimed</SelectItem>

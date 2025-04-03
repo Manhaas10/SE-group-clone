@@ -31,7 +31,7 @@ app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 
 // Apply middleware
-app.use(excludeGoogleOAuthRoutes);
+// app.use(excludeGoogleOAuthRoutes);
 app.use("/auth", authRoutes); 
 
 // API Routes

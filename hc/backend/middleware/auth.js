@@ -51,6 +51,8 @@ passport.use(
                             
                             email: user.email,
                             role: user.role,
+                            hostelblock:user.hostelblock,
+
                         },
                         "manhaasapp",
                         { expiresIn: "1h" }
@@ -97,7 +99,7 @@ router.get(
         });
 
         // console.log(res.cookie.token);
-        console.log("Set-Cookie Header:", res.getHeaders()["set-cookie"]);
+        // console.log("Set-Cookie Header:", res.getHeaders()["set-cookie"]);
 
         res.redirect(`http://localhost:5173/dashboards`);
     }

@@ -9,7 +9,23 @@ export const AnnouncementsList = () => {
   const [error, setError] = useState(null);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  // const navigate = useNavigate();
 
+  // Fetch Announcements
+    useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          const response = await api.get("/user/me", { withCredentials: true });
+          console.log(response.data);
+          setUser(response.data);
+          setUsername(user.username);
+        } catch (error) {
+          console.error("Failed to fetch user :", error);
+        }
+      };
+      fetchUser();
+    }, []);
   // Fetch announcements from API
   useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -35,6 +51,10 @@ export const AnnouncementsList = () => {
     setSelectedAnnouncement(announcement);
     setIsDetailModalOpen(true);
   };
+  const filteredAnnouncements = announcements.filter((item) => {
+    const categoryBlock = item.category.replace("Block ", ""); // Extract "A" from "Block A"
+    return item.category === "All Blocks" || categoryBlock === user?.block;
+  });
 
   if (loading) {
     return <p className="text-center text-gray-600">Loading announcements...</p>;
@@ -60,7 +80,7 @@ export const AnnouncementsList = () => {
 
   return (
     <div className="space-y-4">
-      {announcements.map((announcement) => (
+      {filteredAnnouncements.map((announcement) => (
         <AnnouncementCard
           key={announcement.id}
           announcement={announcement}

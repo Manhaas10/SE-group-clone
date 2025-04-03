@@ -256,9 +256,9 @@ const Dashc = () => {
           </div>
         </div>
 
-        <footer className="mt-8 py-4 text-center text-sm text-muted-foreground">
+        {/* <footer className="mt-8 py-4 text-center text-sm text-muted-foreground">
           <p>© 2023 Hostel Management System. All rights reserved.</p>
-        </footer>
+        </footer> */}
       </div>
 
       {showAnnouncementModal && (

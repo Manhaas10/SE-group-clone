@@ -150,7 +150,7 @@ const Complaintss = () => {
                           <SelectTrigger className="w-[120px]">
                             <SelectValue placeholder={formatStatus(complaint.status)} />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
                             <SelectItem value="pending">Pending</SelectItem>
                             <SelectItem value="inProgress">In Progress</SelectItem>
                             <SelectItem value="resolved">Resolved</SelectItem>
