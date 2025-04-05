@@ -122,7 +122,7 @@ const LateEntryRequest = () => {
                         setDate(selectedDate);
                         setIsCalendarOpen(false);
                       }}
-                      disabled={{ after: new Date() }}
+                      // disabled={{ after: new Date() }}
                     />
                   </div>
                 )}

@@ -97,7 +97,7 @@ router.post("/", auth, upload.single("attachment"), (req, res) => {
 
     // console.log("The file: ", req.file.buffer);
     db.query(
-      "INSERT INTO late_entry_requests (student_id, reason, status, attachment_name, attachment_url, attachment, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO late_entry_requests (student_id, reason, status, attachment_name, attachment_url, attachment, user_id, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         student_id,
         reason,
@@ -105,7 +105,8 @@ router.post("/", auth, upload.single("attachment"), (req, res) => {
         req.file.originalname,
         `/uploads/${req.file.originalname}`,
         req.file.buffer,
-        req.user.id
+        req.user.id,
+        new Date()
       ],
       (err, result) => {
         if (err) {

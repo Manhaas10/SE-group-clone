@@ -4,11 +4,13 @@ import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-Toast";
 import { Check, X, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+
 
 const StudentRequestCard = ({ request, onApprove, onDecline }) => {
   const { toast } = useToast();
   console.log(request);
-  
+
   const handleApprove = () => {
     onApprove(request.id);
     toast({
@@ -16,7 +18,7 @@ const StudentRequestCard = ({ request, onApprove, onDecline }) => {
       description: `${request.username}'s late entry request has been approved.`,
     });
   };
-  
+
   const handleDecline = () => {
     onDecline(request.id);
     toast({
@@ -41,15 +43,16 @@ const StudentRequestCard = ({ request, onApprove, onDecline }) => {
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
-              {formatDistanceToNow(new Date(request.timestamp), { addSuffix: true })}
+              {format(new Date(request.timestamp.replace(" ", "T")), "dd/MM/yyyy hh:mma")}
             </p>
+
             {request.reason && (
               <p className="mt-2 text-sm bg-gray-50 p-3 rounded-md border border-gray-100">
                 Reason: "{request.reason}"
               </p>
             )}
           </div>
-          
+
           <div>
             {request.status === 'pending' ? (
               <Badge variant="outline" className="bg-school-pending/10 text-school-pending border-school-pending/20">
@@ -67,7 +70,7 @@ const StudentRequestCard = ({ request, onApprove, onDecline }) => {
           </div>
         </div>
       </CardContent>
-      
+
       {request.status === 'pending' && (
         <CardFooter className="px-6 py-4 bg-gray-50 flex justify-end gap-2">
           {request.attachment && (
@@ -86,7 +89,7 @@ const StudentRequestCard = ({ request, onApprove, onDecline }) => {
           >
             <X className="mr-2 h-4 w-4" /> Decline
           </Button>
-          <Button 
+          <Button
             className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-xs px-4 py-2 rounded-md"
             onClick={handleApprove}
           >

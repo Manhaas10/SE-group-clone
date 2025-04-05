@@ -23,7 +23,7 @@ export const EntryRequestCard = ({ request, className, onDelete }) => {
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
         <h3 className="font-medium">
-          {format(new Date(request.timestamp), "PPpp")}
+          {format(new Date(request.timestamp), "dd/MM/yyyy hh:mma")}
         </h3>
         <StatusBadge status={request.status} />
       </div>
