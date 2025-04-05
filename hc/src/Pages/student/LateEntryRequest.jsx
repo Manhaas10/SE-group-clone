@@ -48,14 +48,14 @@ const LateEntryRequest = () => {
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("reason", reason);
-    formData.append("attachment", file); // ✅ Use "attachment" to match Multer config
+    formData.append("attachment", file); 
   
     try {
   
       const response = await fetch("http://localhost:5000/api/late-entry", {
         method: "POST",
         credentials: "include",
-        body: formData, // ✅ Send correct formData
+        body: formData, 
       });
   
       const data = await response.json();
@@ -122,6 +122,7 @@ const LateEntryRequest = () => {
                         setDate(selectedDate);
                         setIsCalendarOpen(false);
                       }}
+                      disabled={{ after: new Date() }}
                     />
                   </div>
                 )}

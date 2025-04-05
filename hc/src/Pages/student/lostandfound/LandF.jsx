@@ -21,7 +21,13 @@ const LostAndFound = () => {
         setIsLoading(true)
         const response = await api.get("/lost-found")
         console.log(response.data);
-        setItems(response.data)
+        // Process items and construct the image URL
+        const processedItems = response.data.map((item) => ({
+          ...item,
+          image: item.image ? item.image : null,
+        }));
+
+        setItems(processedItems);
       } catch (error) {
         console.error("Error fetching lost and found items:", error)
         toast.error("Failed to load lost and found items")
@@ -85,6 +91,7 @@ const LostAndFound = () => {
                   date: item.date,
                   type: item.status.toUpperCase(),
                   reportedBy: item.reported_by,
+                  image: item.image,
                 }}
               />
             ))

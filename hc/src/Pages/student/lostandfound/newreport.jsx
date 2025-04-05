@@ -16,7 +16,7 @@ const CATEGORIES = ["Electronics", "Books", "Clothing", "Accessories", "Document
 const NewReport = () => {
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
+
   // Controlled form state
   const [formData, setFormData] = useState({
     type: "LOST",
@@ -25,9 +25,11 @@ const NewReport = () => {
     description: "",
     location: "",
     date: format(new Date(), "yyyy-MM-dd"),
-    image: null, // New state for the image file
   })
-  
+
+  // New state to handle the selected image
+  const [selectedImage, setSelectedImage] = useState(null)
+
   const [errors, setErrors] = useState({})
 
   const handleChange = (e) => {
@@ -58,9 +60,15 @@ const NewReport = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     const newErrors = validateForm()
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
+      return
+    }
+
+    // Check if selected image is PNG
+    if (selectedImage && selectedImage.type !== "image/png") {
+      toast.error("Only PNG images are allowed.")
       return
     }
 
@@ -68,17 +76,23 @@ const NewReport = () => {
 
     try {
       const formattedDate = format(new Date(formData.date), "yyyy-MM-dd")
-      
+      const itemData = {
+        name: formData.title,
+        description: formData.description,
+        location: formData.location,
+        status: formData.type.toLowerCase(),
+        additional_details: `Category: ${formData.category}`,
+        date: formattedDate,
+      }
+
+      // Use FormData to send text + image
       const formDataToSend = new FormData()
-      formDataToSend.append("name", formData.title)
-      formDataToSend.append("description", formData.description)
-      formDataToSend.append("location", formData.location)
-      formDataToSend.append("status", formData.type.toLowerCase())
-      formDataToSend.append("additional_details", `Category: ${formData.category}`)
-      formDataToSend.append("date", formattedDate)
-      
-      if (formData.image) {
-        formDataToSend.append("image", formData.image) // Append image only if selected
+      Object.entries(itemData).forEach(([key, value]) => {
+        formDataToSend.append(key, value)
+      })
+
+      if (selectedImage) {
+        formDataToSend.append("image", selectedImage)
       }
 
       await api.post("/lost-found", formDataToSend, {
@@ -116,32 +130,32 @@ const NewReport = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Report Type */}
               <div className="space-y-2">
-  <label htmlFor="type" className="block text-sm font-semibold text-gray-700">
-    Report Type
-  </label>
-  <Select 
-    onValueChange={(value) => handleSelectChange("type", value)} 
-    value={formData.type}
-  >
-    <SelectTrigger >
-      <SelectValue placeholder="Select Report Type" />
-    </SelectTrigger>
-    <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
-      <SelectItem 
-        value="LOST" 
-        className="px-4 py-2 hover:bg-gray-100 transition-all"
-      >
-        Lost Item
-      </SelectItem>
-      <SelectItem 
-        value="FOUND" 
-        className="px-4 py-2 hover:bg-gray-100 transition-all"
-      >
-        Found Item
-      </SelectItem>
-    </SelectContent>
-  </Select>
-</div>
+                <label htmlFor="type" className="block text-sm font-semibold text-gray-700">
+                  Report Type
+                </label>
+                <Select
+                  onValueChange={(value) => handleSelectChange("type", value)}
+                  value={formData.type}
+                >
+                  <SelectTrigger >
+                    <SelectValue placeholder="Select Report Type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
+                    <SelectItem
+                      value="LOST"
+                      className="px-4 py-2 hover:bg-gray-100 transition-all"
+                    >
+                      Lost Item
+                    </SelectItem>
+                    <SelectItem
+                      value="FOUND"
+                      className="px-4 py-2 hover:bg-gray-100 transition-all"
+                    >
+                      Found Item
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
 
               {/* Category */}
@@ -177,10 +191,16 @@ const NewReport = () => {
               {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
             </div>
 
-            {/* Image Upload */}
+            {/* Image Upload (PNG only) */}
             <div className="space-y-2">
-              <label htmlFor="image" className="block text-sm font-medium">Upload Image (optional)</label>
-              <Input type="file" accept="image/*" onChange={handleFileChange} />
+              <label htmlFor="image" className="block text-sm font-medium">Image (PNG only)</label>
+              <Input
+                type="file"
+                accept="image/png"
+                onChange={(e) => {
+                  setSelectedImage(e.target.files[0] || null)
+                }}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -124,6 +123,7 @@ const LostAndFoundd = () => {
                   <TableHead>Status</TableHead>
                   <TableHead>Reported By</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>View Image</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -132,18 +132,30 @@ const LostAndFoundd = () => {
                   items.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">
-                        <button
+                        {/* <button
                           className="text-primary hover:underline focus:outline-none"
                           onClick={() => openItemDetails(item)}
-                        >
+                        > */}
                           {item.name}
-                        </button>
+                        {/* </button> */}
                       </TableCell>
                       <TableCell>{item.description}</TableCell>
                       <TableCell>{item.location}</TableCell>
                       <TableCell>{getStatusBadge(item.status)}</TableCell>
                       <TableCell>{item.reported_by}</TableCell>
                       <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        {item.image ? (
+                          <Button
+                            variant="outline"
+                            onClick={() => openItemDetails(item)}
+                          >
+                            View
+                          </Button>
+                        ) : (
+                          "No Image"
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Select
                           defaultValue={item.status}
@@ -163,7 +175,7 @@ const LostAndFoundd = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-4">
+                    <TableCell colSpan={8} className="text-center py-4">
                       No items found
                     </TableCell>
                   </TableRow>
@@ -175,7 +187,7 @@ const LostAndFoundd = () => {
 
         {/* Item Details Modal */}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[500px] bg-white">
             {selectedItem && (
               <>
                 <DialogHeader>
@@ -187,11 +199,19 @@ const LostAndFoundd = () => {
 
                 <div className="py-4">
                   <div className="space-y-4">
-                    {selectedItem.image_url && (
+                  {selectedItem.image ? (
                       <div className="flex justify-center">
                         <img
-                          src={selectedItem.image_url || "/placeholder.svg"}
+                          src={selectedItem.image}
                           alt={selectedItem.name}
+                          className="max-h-[200px] rounded-md object-contain border p-2"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex justify-center">
+                        <img
+                          src="/placeholder.svg"
+                          alt="Placeholder"
                           className="max-h-[200px] rounded-md object-contain border p-2"
                         />
                       </div>
@@ -228,10 +248,10 @@ const LostAndFoundd = () => {
                       handleStatusChange(selectedItem.id, value)
                     }}
                   >
-                    <SelectTrigger className="w-[120px]">
+                    <SelectTrigger className="w-[120px] bg-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className= "bg-white border border-gray-200 rounded-md shadow-lg">
                       <SelectItem value="lost">Lost</SelectItem>
                       <SelectItem value="found">Found</SelectItem>
                       <SelectItem value="claimed">Claimed</SelectItem>

@@ -1,8 +1,24 @@
-import {EntryRequestCard } from "./EntryRequestCard";
+import { EntryRequestCard } from "./EntryRequestCard";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { useState } from "react";
 
+export const EntryRequestList = ({ requests: initialRequests, className }) => {
+  const [requests, setRequests] = useState(initialRequests);
 
-export const EntryRequestList = ({ requests, className }) => {
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/late-entry/${id}`, {
+        withCredentials: true, // if you use cookies/session
+      });
+
+      setRequests(prev => prev.filter(req => req.id !== id));
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete request");
+    }
+  };
+
   if (requests.length === 0) {
     return (
       <div className="text-center py-8">
@@ -14,7 +30,7 @@ export const EntryRequestList = ({ requests, className }) => {
   return (
     <div className={cn("grid gap-4 md:grid-cols-2", className)}>
       {requests.map((request) => (
-        <EntryRequestCard key={request.id} request={request} />
+        <EntryRequestCard key={request.id} request={request} onDelete={handleDelete} />
       ))}
     </div>
   );

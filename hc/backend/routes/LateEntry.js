@@ -5,16 +5,10 @@ const { auth } = require("../middleware/auth");
 
 const multer = require("multer");
 const path = require("path");
+const { register } = require("module");
 
 // Multer Storage Configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Save files in "uploads/" folder
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
-  }
-});
+const storage = multer.memoryStorage(); // Store files in memory as buffer
 
 // Multer Upload Middleware
 const upload = multer({
@@ -83,6 +77,7 @@ router.get("/:id", auth, (req, res) => {
 
 // POST a new late entry request (with file upload)
 router.post("/", auth, upload.single("attachment"), (req, res) => {
+  console.log("Received file:", req.file);
   const { reason } = req.body;
 
   if (!reason) {
@@ -93,8 +88,6 @@ router.post("/", auth, upload.single("attachment"), (req, res) => {
     return res.status(400).json({ error: "Attachment is required" });
   }
 
-  const fileUrl = `/uploads/${req.file.filename}`; // Store file path
-
   db.query("SELECT rollnumber FROM users WHERE id = ?", [req.user.id], (err, results) => {
     if (err || results.length === 0) {
       return res.status(500).json({ error: "Failed to retrieve user information" });
@@ -102,13 +95,23 @@ router.post("/", auth, upload.single("attachment"), (req, res) => {
 
     const student_id = results[0].rollnumber;
 
+    // console.log("The file: ", req.file.buffer);
     db.query(
-      "INSERT INTO late_entry_requests (student_id, reason, attachment_name, attachment_url, user_id) VALUES (?, ?, ?, ?, ?)",
-      [student_id, reason, req.file.originalname, fileUrl, req.user.id],
+      "INSERT INTO late_entry_requests (student_id, reason, status, attachment_name, attachment_url, attachment, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [
+        student_id,
+        reason,
+        'pending',
+        req.file.originalname,
+        `/uploads/${req.file.originalname}`,
+        req.file.buffer,
+        req.user.id
+      ],
       (err, result) => {
         if (err) {
           return res.status(500).json({ error: "Failed to create request" });
         }
+        // console.log("reached here ?");
         res.status(201).json({ message: "Late entry request submitted successfully", id: result.insertId });
       }
     );
@@ -127,8 +130,8 @@ router.put("/:id", auth, upload.single("attachment"), (req, res) => {
   let params = [reason];
 
   if (req.file) {
-    query += ", attachment_name = ?, attachment_url = ?";
-    params.push(req.file.originalname, `/uploads/${req.file.filename}`);
+    query += ", attachment_name = ?, attachment_url = ?, attachment = ?";
+    params.push(req.file.originalname, `/uploads/${req.file.originalname}`, req.file.buffer);
   }
 
   query += " WHERE id = ? AND user_id = ? AND status = 'pending'";
@@ -188,5 +191,41 @@ router.delete("/:id", auth, (req, res) => {
     res.json({ message: "Request deleted successfully" });
   });
 });
+
+
+// GET attachment file for a given late entry request
+router.get("/:id/attachment", auth, (req, res) => {
+  const query =
+    req.user.role === "admin"
+      ? "SELECT attachment, attachment_name FROM late_entry_requests WHERE id = ?"
+      : "SELECT attachment, attachment_name FROM late_entry_requests WHERE id = ? AND user_id = ?";
+  const params = req.user.role === "admin" ? [req.params.id] : [req.params.id, req.user.id];
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Database error" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Attachment not found" });
+    }
+
+    const { attachment, attachment_name } = results[0];
+
+    // Determine content type based on file extension
+    let contentType = "application/octet-stream";
+    if (attachment_name.endsWith(".pdf")) {
+      contentType = "application/pdf";
+    } else if (attachment_name.endsWith(".jpg") || attachment_name.endsWith(".jpeg")) {
+      contentType = "image/jpeg";
+    } else if (attachment_name.endsWith(".png")) {
+      contentType = "image/png";
+    }
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", `inline; filename="${attachment_name}"`);
+    res.send(attachment);
+  });
+});
+
 
 module.exports = router;
