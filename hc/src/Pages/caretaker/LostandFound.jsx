@@ -2,10 +2,30 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ArrowLeft, MessageSquare } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/caretaker/use-Toast"
 import { ChevronLeft, Package } from "lucide-react"
@@ -38,12 +58,15 @@ const LostAndFoundd = () => {
     fetchItems()
   }, [])
 
-  // Handle status change
   const handleStatusChange = async (id, newStatus) => {
     try {
       await api.patch(`/lost-found/${id}/status`, { status: newStatus })
 
-      setItems((prevItems) => prevItems.map((item) => (item.id === id ? { ...item, status: newStatus } : item)))
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === id ? { ...item, status: newStatus } : item
+        )
+      )
 
       if (selectedItem && selectedItem.id === id) {
         setSelectedItem({ ...selectedItem, status: newStatus })
@@ -62,53 +85,67 @@ const LostAndFoundd = () => {
     }
   }
 
-  // Open modal with item details
   const openItemDetails = (item) => {
     setSelectedItem(item)
     setIsModalOpen(true)
   }
 
-  // Get status badge styling
   const getStatusBadge = (status) => {
     switch (status) {
       case "found":
-        return <Badge className="bg-[#F2FCE2] text-green-700 hover:bg-[#E2ECD2]">Found</Badge>
+        return (
+          <Badge className="bg-[#F2FCE2] text-green-700 hover:bg-[#E2ECD2]">
+            Found
+          </Badge>
+        )
       case "lost":
-        return <Badge className="bg-[#FFECEE] text-red-600 hover:bg-[#EFDCDE]">Lost</Badge>
+        return (
+          <Badge className="bg-[#FFECEE] text-red-600 hover:bg-[#EFDCDE]">
+            Lost
+          </Badge>
+        )
       case "claimed":
-        return <Badge className="bg-[#E0F2FE] text-blue-600 hover:bg-[#D0E2EE]">Claimed</Badge>
+        return (
+          <Badge className="bg-[#E0F2FE] text-blue-600 hover:bg-[#D0E2EE]">
+            Claimed
+          </Badge>
+        )
       default:
         return <Badge>Unknown</Badge>
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#F0F8FF]">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
+    <div className="min-h-screen bg-gray-50">
+      {/* <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8"> */}
         {/* Header */}
-        <div className="mb-8">
+        <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
           <Button
-            variant="ghost"
-            className="mb-4 pl-0 text-muted-foreground shadow-md"
+            variant="outline"
+            className="flex items-center gap-2 text-gray-600"
             onClick={() => navigate("/dashboardc")}
           >
-            <ChevronLeft className="mr-1 h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
-
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-md bg-[#F2FCE2] flex items-center justify-center">
-              <Package className="h-6 w-6 text-green-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">Lost & Found</h1>
-              <p className="text-muted-foreground">Track and manage lost and found items</p>
-            </div>
+        </div>
+      </header>
+        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="bg-green-100 p-2 rounded-md">
+            <Package className="h-6 w-6 text-green-600" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Lost & Found</h1>
+            <p className="text-gray-500 mt-1">
+              Track and manage lost and found items
+            </p>
           </div>
         </div>
 
         {/* Table */}
-        <div className="rounded-md border">
+        <div className="bg-white shadow rounded-lg overflow-hidden">
           {isLoading ? (
             <div className="py-8 text-center">
               <p className="text-muted-foreground">Loading items...</p>
@@ -132,18 +169,15 @@ const LostAndFoundd = () => {
                   items.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">
-                        {/* <button
-                          className="text-primary hover:underline focus:outline-none"
-                          onClick={() => openItemDetails(item)}
-                        > */}
-                          {item.name}
-                        {/* </button> */}
+                        {item.name}
                       </TableCell>
                       <TableCell>{item.description}</TableCell>
                       <TableCell>{item.location}</TableCell>
                       <TableCell>{getStatusBadge(item.status)}</TableCell>
                       <TableCell>{item.reported_by}</TableCell>
-                      <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        {new Date(item.date).toLocaleDateString()}
+                      </TableCell>
                       <TableCell>
                         {item.image ? (
                           <Button
@@ -159,7 +193,9 @@ const LostAndFoundd = () => {
                       <TableCell>
                         <Select
                           defaultValue={item.status}
-                          onValueChange={(value) => handleStatusChange(item.id, value)}
+                          onValueChange={(value) =>
+                            handleStatusChange(item.id, value)
+                          }
                         >
                           <SelectTrigger className="w-[120px]">
                             <SelectValue />
@@ -185,7 +221,7 @@ const LostAndFoundd = () => {
           )}
         </div>
 
-        {/* Item Details Modal */}
+        {/* Modal */}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent className="sm:max-w-[500px] bg-white">
             {selectedItem && (
@@ -199,7 +235,7 @@ const LostAndFoundd = () => {
 
                 <div className="py-4">
                   <div className="space-y-4">
-                  {selectedItem.image ? (
+                    {selectedItem.image ? (
                       <div className="flex justify-center">
                         <img
                           src={selectedItem.image}
@@ -219,23 +255,35 @@ const LostAndFoundd = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Location</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Location
+                        </p>
                         <p>{selectedItem.location}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Reported By</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Reported By
+                        </p>
                         <p>{selectedItem.reported_by}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Date</p>
-                        <p>{new Date(selectedItem.date).toLocaleDateString()}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Date
+                        </p>
+                        <p>
+                          {new Date(selectedItem.date).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
 
                     {selectedItem.additional_details && (
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Additional Details</p>
-                        <p className="text-sm">{selectedItem.additional_details}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Additional Details
+                        </p>
+                        <p className="text-sm">
+                          {selectedItem.additional_details}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -244,14 +292,14 @@ const LostAndFoundd = () => {
                 <div className="flex justify-between items-center">
                   <Select
                     defaultValue={selectedItem.status}
-                    onValueChange={(value) => {
+                    onValueChange={(value) =>
                       handleStatusChange(selectedItem.id, value)
-                    }}
+                    }
                   >
                     <SelectTrigger className="w-[120px] bg-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className= "bg-white border border-gray-200 rounded-md shadow-lg">
+                    <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
                       <SelectItem value="lost">Lost</SelectItem>
                       <SelectItem value="found">Found</SelectItem>
                       <SelectItem value="claimed">Claimed</SelectItem>
@@ -266,10 +314,9 @@ const LostAndFoundd = () => {
             )}
           </DialogContent>
         </Dialog>
-      </div>
+      </main>
     </div>
   )
 }
 
 export default LostAndFoundd
-

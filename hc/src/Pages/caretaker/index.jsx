@@ -163,7 +163,7 @@ const Dashc = () => {
   return (
     <div className="min-h-screen bg-[#F0F8FF]">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <header className="w-full bg-[#F0F8FF] shadow-md p-3 rounded-lg">
+        <header className="w-full bg-white shadow-md p-3 rounded-lg">
           <Header />
         </header>
 
@@ -194,6 +194,7 @@ const Dashc = () => {
             variant="complaint"
             onAction={() => handleAction("complaints")}
             animationDelay="animate-delay-100"
+            className="bg-white"
           />
 
           <ActionCard
@@ -203,6 +204,7 @@ const Dashc = () => {
             variant="lost"
             onAction={() => handleAction("lostfound")}
             animationDelay="animate-delay-200"
+            className="bg-white"
           />
 
           <ActionCard
@@ -212,6 +214,7 @@ const Dashc = () => {
             variant="entry"
             onAction={() => handleAction("entryrequests")}
             animationDelay="animate-delay-300"
+            className="bg-white"
           />
 
           <ActionCard
@@ -223,11 +226,12 @@ const Dashc = () => {
             onSecondaryAction={handleNewPost}
             secondaryButtonText="New Post"
             animationDelay="animate-delay-400"
+            className="bg-white"
           />
         </div>
 
         <div className="mt-10">
-          <div className="glass p-6 rounded-xl shadow-md p-3 rounded-lg">
+          <div className="bg-white p-6 rounded-xl shadow-md">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Clock size={18} className="text-muted-foreground" />
               Recent Activity

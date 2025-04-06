@@ -12,7 +12,7 @@ const Header = () => {
   };
 
   return (
-    <header className="flex justify-between items-center py-6 animate-fade-in">
+    <header className="flex justify-between items-center py-6 px-4 bg-white  animate-fade-in rounded-md">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Caretaker Dashboard</h1>
         <p className="text-muted-foreground mt-1">Manage hostel operations efficiently</p>

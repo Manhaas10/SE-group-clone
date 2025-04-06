@@ -1,178 +1,224 @@
-"use client"
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, MessageSquare } from "lucide-react";
+import { toast } from "@/hooks/caretaker/use-Toast";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import api from "../api/axios";
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { toast } from "@/hooks/caretaker/use-Toast"
-import { ChevronLeft, MessageSquare } from "lucide-react"
-import api from "../api/axios"
-
-const Complaintss = () => {
-  const navigate = useNavigate()
-  const [complaints, setComplaints] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+const Index = () => {
+  const navigate = useNavigate();
+  const [complaints, setComplaints] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
-        setIsLoading(true)
-        const response = await api.get("/complaints")
-        setComplaints(response.data)
+        setIsLoading(true);
+        const response = await api.get("/complaints");
+        setComplaints(response.data);
       } catch (error) {
-        console.error("Error fetching complaints:", error)
+        console.error("Error fetching complaints:", error);
         toast({
           title: "Error",
           description: "Failed to load complaints",
-        })
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchComplaints()
-  }, [])
+    fetchComplaints();
+  }, []);
 
-  // Handle status change
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await api.patch(`/complaints/${id}/status`, { status: newStatus })
+      await api.patch(`/complaints/${id}/status`, { status: newStatus });
 
       setComplaints((prevComplaints) =>
-        prevComplaints.map((complaint) => (complaint.id === id ? { ...complaint, status: newStatus } : complaint)),
-      )
+        prevComplaints.map((complaint) =>
+          complaint.id === id
+            ? { ...complaint, status: newStatus }
+            : complaint
+        )
+      );
 
       toast({
         title: "Status Updated",
-        description: `Complaint status has been changed to ${newStatus === "inProgress" ? "In Progress" : newStatus}.`,
-      })
+        description: `Complaint status has been changed to ${
+          newStatus === "inProgress" ? "In Progress" : newStatus
+        }.`,
+      });
     } catch (error) {
-      console.error("Error updating complaint status:", error)
+      console.error("Error updating complaint status:", error);
       toast({
         title: "Error",
         description: "Failed to update complaint status",
-      })
+      });
     }
-  }
+  };
 
-  // Get status badge styling
   const getStatusBadge = (status) => {
     switch (status) {
       case "pending":
-        return <Badge className="bg-[#FEF7CD] text-amber-700 hover:bg-[#EEE7BD]">Pending</Badge>
+        return (
+          <Badge className="bg-[#FEF7CD] text-amber-700 hover:bg-[#EEE7BD]">
+            Pending
+          </Badge>
+        );
       case "inProgress":
-        return <Badge className="bg-[#D3E4FD] text-blue-600 hover:bg-[#C3D4ED]">In Progress</Badge>
+        return (
+          <Badge className="bg-[#D3E4FD] text-blue-600 hover:bg-[#C3D4ED]">
+            In Progress
+          </Badge>
+        );
       case "resolved":
-        return <Badge className="bg-[#F2FCE2] text-green-700 hover:bg-[#E2ECD2]">Resolved</Badge>
+        return (
+          <Badge className="bg-[#F2FCE2] text-green-700 hover:bg-[#E2ECD2]">
+            Resolved
+          </Badge>
+        );
       default:
-        return <Badge>Unknown</Badge>
+        return <Badge>Unknown</Badge>;
     }
-  }
+  };
 
-  // Format status for display
   const formatStatus = (status) => {
     switch (status) {
       case "pending":
-        return "Pending"
+        return "Pending";
       case "inProgress":
-        return "In Progress"
+        return "In Progress";
       case "resolved":
-        return "Resolved"
+        return "Resolved";
       default:
-        return status
+        return status;
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-[#F0F8FF]">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        {/* Header */}
-        <div className="mb-8">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header with navigation */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
           <Button
-            variant="ghost"
-            className="mb-4 pl-0 text-muted-foreground shadow-md"
+            variant="outline"
+            className="flex items-center gap-2 text-gray-600"
             onClick={() => navigate("/dashboardc")}
           >
-            <ChevronLeft className="mr-1 h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
+        </div>
+      </header>
 
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-md bg-[#F2FCE2] flex items-center justify-center">
+      {/* Main content */}
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-0">
+          {/* Page header */}
+          <div className="flex items-center gap-4 mb-8">
+            <div className="bg-green-100 p-2 rounded-md">
               <MessageSquare className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Complaints Management</h1>
-              <p className="text-muted-foreground">View and manage student complaints</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Complaints Management
+              </h1>
+              <p className="text-gray-500 mt-1">
+                View and manage student complaints
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* Table */}
-        <div className="rounded-md border">
-          {isLoading ? (
-            <div className="py-8 text-center">
-              <p className="text-muted-foreground">Loading complaints...</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Room</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {complaints.length > 0 ? (
-                  complaints.map((complaint) => (
-                    <TableRow key={complaint.id}>
-                      <TableCell className="font-medium">
-                        {complaint.room}
-                        {complaint.is_anonymous && (
-                          <span className="ml-2 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
-                            Anonymous
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>{complaint.description}</TableCell>
-                      <TableCell>{getStatusBadge(complaint.status)}</TableCell>
-                      <TableCell>{new Date(complaint.submitted).toLocaleString()}</TableCell>
-                      <TableCell>
-                        <Select
-                          defaultValue={complaint.status}
-                          onValueChange={(value) => handleStatusChange(complaint.id, value)}
-                        >
-                          <SelectTrigger className="w-[120px]">
-                            <SelectValue placeholder={formatStatus(complaint.status)} />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="inProgress">In Progress</SelectItem>
-                            <SelectItem value="resolved">Resolved</SelectItem>
-                          </SelectContent>
-                        </Select>
+          {/* Complaints table */}
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            {isLoading ? (
+              <div className="py-8 text-center">
+                <p className="text-muted-foreground">Loading complaints...</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Room</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Submitted</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {complaints.length > 0 ? (
+                    complaints.map((complaint) => (
+                      <TableRow key={complaint.id}>
+                        <TableCell className="font-medium">
+                          {complaint.room}
+                          {complaint.is_anonymous && (
+                            <span className="ml-2 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                              Anonymous
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>{complaint.description}</TableCell>
+                        <TableCell>
+                          {getStatusBadge(complaint.status)}
+                        </TableCell>
+                        <TableCell className="text-gray-500">
+                          {new Date(complaint.submitted).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            defaultValue={complaint.status}
+                            onValueChange={(value) =>
+                              handleStatusChange(complaint.id, value)
+                            }
+                          >
+                            <SelectTrigger className="w-[120px]">
+                              <SelectValue
+                                placeholder={formatStatus(complaint.status)}
+                              />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="inProgress">
+                                In Progress
+                              </SelectItem>
+                              <SelectItem value="resolved">Resolved</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-4">
+                        No complaints found
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4">
-                      No complaints found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          )}
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
-  )
-}
+  );
+};
 
-export default Complaintss
+export default Index;

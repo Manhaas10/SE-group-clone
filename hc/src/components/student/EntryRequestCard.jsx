@@ -40,7 +40,7 @@ export const EntryRequestCard = ({ request, className, onDelete }) => {
         )}
         {request.status === "pending" && (
           <Button
-          className="bg-red-500 font-medium py-2 px-4 rounded-full text-sm opacity-75"
+          className="bg-red-700 font-medium py-2 px-4 rounded-sm text-sm text-white "
           onClick={handleDelete}
         >        
             Delete
