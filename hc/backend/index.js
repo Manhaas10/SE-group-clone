@@ -45,7 +45,7 @@ app.use("/api/user", userRoutes);
 
 // 🔥 Debug: Check if skillpostRoutes is a function
 if (typeof skillpostRoutes !== "function") {
-  console.error("❌ ERROR: skillpostRoutes is NOT a function. Check routes/skillpost.js export!");
+  console.error("ERROR: skillpostRoutes is NOT a function. Check routes/skillpost.js export!");
 }
 
 app.use("/api/skillpost", skillpostRoutes);

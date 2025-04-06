@@ -1,44 +1,38 @@
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { toast } from "sonner";
+import { toast } from 'sonner';
+import api from "../api/axios"; 
 
 const Profile = () => {
   const navigate = useNavigate();
-  
-  const [formData, setFormData] = useState({
-    name: 'John Doe',
-    rollNumber: 'B200456CS',
-    roomNumber: 'A-304',
-    hostelBlock: 'A Block',
-    email: 'john@nitc.ac.in'
-  });
+  const [formData, setFormData] = useState(null); 
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
-  };
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get('user/profile'); 
+        const data = response.data;
+        setFormData({
+          name: data.name || '',
+          rollNumber: data.rollnumber || '',
+          roomNumber: data.roomNo || '',
+          hostelBlock: data.hostelblock || '',
+          email: data.email || '',
+        });
+      } catch (err) {
+        toast.error("Error fetching profile");
+        console.error("Fetch error:", err);
+      }
+    };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    toast("Profile updated successfully", {
-      description: "Your changes have been saved",
-      duration: 3000,
-    });
-  };
+    fetchProfile();
+  }, []);
 
-  const handleBackClick = () => {
-    navigate('/dashboards');
-  };
+  const handleBackClick = () => navigate('/dashboards');
 
-  const handleCancel = () => {
-    navigate('/profile');
-  };
+  if (!formData) return <div className="text-center p-10">Loading profile...</div>;
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,15 +56,9 @@ const Profile = () => {
               <p className="text-gray-500">Manage your personal information</p>
             </div>
           </div>
-          {/* <Button 
-            onClick={handleSubmit} 
-            className="bg-green-500 hover:bg-green-600"
-          >
-            Save Changes
-          </Button> */}
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="name" className="block text-gray-700 mb-2">Name</label>
             <input
@@ -78,11 +66,11 @@ const Profile = () => {
               name="name"
               type="text"
               value={formData.name}
-              onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md"
+              disabled
             />
           </div>
-          
+
           <div>
             <label htmlFor="rollNumber" className="block text-gray-700 mb-2">Roll Number</label>
             <input
@@ -90,11 +78,11 @@ const Profile = () => {
               name="rollNumber"
               type="text"
               value={formData.rollNumber}
-              onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md"
+              disabled
             />
           </div>
-          
+
           <div>
             <label htmlFor="roomNumber" className="block text-gray-700 mb-2">Room Number</label>
             <input
@@ -102,11 +90,11 @@ const Profile = () => {
               name="roomNumber"
               type="text"
               value={formData.roomNumber}
-              onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md"
+              disabled
             />
           </div>
-          
+
           <div>
             <label htmlFor="hostelBlock" className="block text-gray-700 mb-2">Hostel Block</label>
             <input
@@ -114,11 +102,11 @@ const Profile = () => {
               name="hostelBlock"
               type="text"
               value={formData.hostelBlock}
-              onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md"
+              disabled
             />
           </div>
-          
+
           <div className="md:col-span-2">
             <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
             <input
@@ -126,20 +114,9 @@ const Profile = () => {
               name="email"
               type="email"
               value={formData.email}
-              onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md"
+              disabled
             />
-          </div>
-          
-          <div className="mt-4">
-            {/* <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleCancel}
-              className="border-gray-300"
-            >
-              Cancel
-            </Button> */}
           </div>
         </form>
       </div>
