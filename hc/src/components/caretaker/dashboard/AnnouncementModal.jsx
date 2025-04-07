@@ -3,51 +3,96 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+// Reusable dropdown
+const Dropdown = ({ label, value, options, onSelect, isOpen, toggleDropdown }) => (
+  <div className={cn("relative transition-all duration-200", isOpen ? "mb-60" : "mb-4")}>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      {label} <span className="text-red-500">*</span>
+    </label>
+    <div className="relative">
+      <button
+        type="button"
+        className="w-full flex justify-between items-center border rounded-md px-4 py-2 bg-white"
+        onClick={toggleDropdown}
+      >
+        <span>{value || `Select ${label.toLowerCase()}`}</span>
+        <svg
+          className={cn("w-4 h-4 transition-transform", isOpen ? "transform rotate-180" : "")}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
 
-const AnnouncementModal = ({
-  isOpen,
-  onClose,
-  onSubmit,
-}) => {
+      {isOpen && (
+        <div className="absolute z-50 mt-1 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+          <ul className="py-1">
+            {options.map((option) => (
+              <li
+                key={option}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+                  onSelect(option);
+                  toggleDropdown();
+                }}
+              >
+                {option}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+const AnnouncementModal = ({ isOpen, onClose, onSubmit }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [type, setType] = useState('Block Specific');
   const [block, setBlock] = useState('');
-  const [isBlockDropdownOpen, setIsBlockDropdownOpen] = useState(false);
-  const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
-  
+  const [category, setCategory] = useState('General');
+
+  const [dropdownOpen, setDropdownOpen] = useState({
+    block: false,
+    type: false,
+    category: false,
+  });
+
   const blockOptions = ['Block A', 'Block B', 'Block C', 'Block D'];
-  const typeOptions = ['Block Specific', 'All Blocks', 'Staff Only'];
-  
+  const typeOptions = ['Block Specific', 'All Blocks'];
+  const categoryOptions = ['General', 'Maintenance', 'Event', 'Electric', 'Other'];
+
+  const toggleDropdown = (name) => {
+    setDropdownOpen((prev) => {
+      // Close all others except the one clicked
+      const newState = { block: false, type: false, category: false };
+      newState[name] = !prev[name];
+      return newState;
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit({
-      title,
-      content,
+      title: title.trim(),
+      content: content.trim(),
       type,
+      category,
       ...(type === 'Block Specific' && { block }),
     });
   };
 
-  const toggleBlockDropdown = () => {
-    setIsBlockDropdownOpen(!isBlockDropdownOpen);
-  };
-
-  const toggleTypeDropdown = () => {
-    setIsTypeDropdownOpen(!isTypeDropdownOpen);
-  };
-
-  const selectBlock = (selectedBlock) => {
-    setBlock(selectedBlock);
-    setIsBlockDropdownOpen(false);
-  };
-
-  const selectType = (selectedType) => {
-    setType(selectedType);
-    setIsTypeDropdownOpen(false);
-  };
-
   if (!isOpen) return null;
+
+  const isFormValid =
+    title.trim() &&
+    content.trim() &&
+    category.trim() &&
+    type.trim() &&
+    (type !== 'Block Specific' || block.trim());
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in">
@@ -55,7 +100,7 @@ const AnnouncementModal = ({
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Create New Announcement</h2>
-            <button 
+            <button
               onClick={onClose}
               className="p-1 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Close"
@@ -65,15 +110,14 @@ const AnnouncementModal = ({
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              {/* Title Input */}
+            <div className="space-y-2">
+              {/* Title */}
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                  Title
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter announcement title"
@@ -82,13 +126,12 @@ const AnnouncementModal = ({
                 />
               </div>
 
-              {/* Content Textarea */}
+              {/* Content */}
               <div>
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-                  Content
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Content <span className="text-red-500">*</span>
                 </label>
                 <textarea
-                  id="content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Enter announcement content"
@@ -98,91 +141,39 @@ const AnnouncementModal = ({
                 />
               </div>
 
-              {/* Type Dropdown */}
-              <div>
-                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-                  Type
-                </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    className="w-full flex justify-between items-center border rounded-md px-4 py-2 bg-white"
-                    onClick={toggleTypeDropdown}
-                  >
-                    <span>{type}</span>
-                    <svg 
-                      className={cn("w-4 h-4 transition-transform", isTypeDropdownOpen ? "transform rotate-180" : "")} 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24" 
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  
-                  {isTypeDropdownOpen && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg">
-                      <ul className="py-1 max-h-60 overflow-auto">
-                        {typeOptions.map((option) => (
-                          <li 
-                            key={option}
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => selectType(option)}
-                          >
-                            {option}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
+              {/* Category */}
+              <Dropdown
+                label="Category"
+                value={category}
+                options={categoryOptions}
+                onSelect={setCategory}
+                isOpen={dropdownOpen.category}
+                toggleDropdown={() => toggleDropdown('category')}
+              />
 
-              {/* Conditional Block Dropdown */}
+              {/* Type */}
+              <Dropdown
+                label="Type"
+                value={type}
+                options={typeOptions}
+                onSelect={setType}
+                isOpen={dropdownOpen.type}
+                toggleDropdown={() => toggleDropdown('type')}
+              />
+
+              {/* Block */}
               {type === 'Block Specific' && (
-                <div>
-                  <label htmlFor="block" className="block text-sm font-medium text-gray-700 mb-1">
-                    Block
-                  </label>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      className="w-full flex justify-between items-center border rounded-md px-4 py-2 bg-white"
-                      onClick={toggleBlockDropdown}
-                    >
-                      <span>{block || 'Select block'}</span>
-                      <svg 
-                        className={cn("w-4 h-4 transition-transform", isBlockDropdownOpen ? "transform rotate-180" : "")} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24" 
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    
-                    {isBlockDropdownOpen && (
-                      <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg">
-                        <ul className="py-1 max-h-60 overflow-auto">
-                          {blockOptions.map((option) => (
-                            <li 
-                              key={option}
-                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                              onClick={() => selectBlock(option)}
-                            >
-                              {option}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <Dropdown
+                  label="Block"
+                  value={block}
+                  options={blockOptions}
+                  onSelect={setBlock}
+                  isOpen={dropdownOpen.block}
+                  toggleDropdown={() => toggleDropdown('block')}
+                />
               )}
 
-              {/* Submit Button */}
+              {/* Submit Buttons */}
               <div className="flex justify-end mt-6">
                 <Button
                   type="button"
@@ -194,9 +185,9 @@ const AnnouncementModal = ({
                 </Button>
                 <Button
                   type="submit"
-                   variant="outline"
-                  className="bg-announcement hover:bg-announcement-dark"
-                  disabled={!title || !content || (type === 'Block Specific' && !block)}
+                  variant="outline"
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  // disabled={!isFormValid}
                 >
                   Create Announcement
                 </Button>

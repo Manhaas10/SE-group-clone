@@ -1,55 +1,47 @@
-
-import React from 'react';
-import { 
-  User, 
-  MessageSquare, 
-  Package, 
-  Users, 
-  Clock, 
-  Utensils, 
-  Bell
-} from 'lucide-react';
-import { useState, useEffect } from "react"
-import Card from './Card';
-import Header from './Header';
+import React, { useState, useEffect } from "react";
+import {
+  User,
+  MessageSquare,
+  Package,
+  Users,
+  Clock,
+  Utensils,
+  Bell,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useNavigate } from 'react-router-dom';
 import api from "@/Pages/api/axios";
-import { AnnouncementDashboardCard } from "@/components/student/A/AD";
-import ActivityItem from "@/components/student/ActivityItem"
-const Dashboard= () => {
- 
-    const [isLoading, setIsLoading] = useState(true);
-    const [username, setUsername] = useState();
-    
-  const totalNotifications = 2; // Sum of all card notifications
-  const navigate=useNavigate();
-  // const [isLoading, setIsLoading] = useState(true);
+import Card from "./Card";
+import Header from "./Header";
+import ActivityItem from "@/components/student/ActivityItem";
+
+const Dashboard = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [username, setUsername] = useState();
   const [announcements, setAnnouncements] = useState([]);
   const [user, setUser] = useState(null);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  // Fetch Announcements
-    useEffect(() => {
-      const fetchUser = async () => {
-        try {
-          const response = await api.get("/user/me", { withCredentials: true });
-          console.log(response.data.username);
-          setUser(response.data);
-          
-          setUsername(response.data.username);
-        } catch (error) {
-          console.error("Failed to fetch user :", error);
-        }
-      };
-      fetchUser();
-    }, []);
+  const totalNotifications = 2;
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/user/me", { withCredentials: true });
+        setUser(response.data);
+        setUsername(response.data.username);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+    fetchUser();
+  }, []);
+
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get("/announcements"); // Fetch from backend
-        console.log(response.data);
+        const response = await api.get("/announcements");
         setAnnouncements(response.data);
       } catch (error) {
         console.error("Error fetching announcements:", error);
@@ -61,59 +53,68 @@ const Dashboard= () => {
 
     fetchAnnouncements();
   }, []);
+
+  // ✅ Updated filtering logic
+  const filteredAnnouncements = announcements.filter((item) => {
+    if (!user) return false;
+
+    if (item.typec === "All Blocks") return true;
+
+    if (
+      item.typec === "Block Specific" &&
+      item.block &&
+      user.block &&
+      item.block.trim().toLowerCase().endsWith(user.block.trim().toLowerCase())
+    ) {
+      return true;
+    }
+
+    return false;
+  });
+
   const handleCardClick = (title) => {
     toast(`${title} card clicked`, {
       description: "This feature is coming soon!",
       duration: 3000,
     });
-    
   };
-  const filteredAnnouncements = announcements.filter(item => {
-    const categoryBlock = item.category.replace("Block ", ""); // Extract "A" from "Block A"
-    return item.category === "All Blocks" || categoryBlock === user?.block;
-  });
-  
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header username={username} notificationCount={totalNotifications} />
-      
+
       <main className="flex-grow p-6 md:p-8 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
-          {/* Profile Card */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card
             title="Profile"
             description="View and edit your profile details"
             icon={<User size={22} className="text-nitc-blue" />}
             iconBgColor="bg-nitc-light-blue"
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate("/profile")}
             style={{ animationDelay: "0ms" }}
             className="shadow-[0_4px_10px_rgba(0,0,255,0.5)]"
           />
-          
-          {/* Complaints Card */}
+
           <Card
             title="Complaints"
             description="Register and track your complaints"
             icon={<MessageSquare size={22} className="text-purple-500" />}
             iconBgColor="bg-light-purple"
-            onClick={() => navigate('/complaints')}
+            onClick={() => navigate("/complaints")}
             style={{ animationDelay: "100ms" }}
             className="shadow-[0_4px_10px_rgba(128,0,128,0.5)]"
           />
-          
-          {/* Lost & Found Card */}
+
           <Card
             title="Lost & Found"
             description="Report lost items or mark found ones"
             icon={<Package size={22} className="text-green-500" />}
             iconBgColor="bg-nitc-light-green"
-            onClick={() => navigate('/LandF')}
+            onClick={() => navigate("/LandF")}
             style={{ animationDelay: "200ms" }}
             className="shadow-[0_4px_10px_rgba(0,128,0,0.5)]"
           />
-          
-          {/* Skill Sharing Card */}
+
           <Card
             title="Skill Sharing"
             description="Join clubs and collaborate with peers"
@@ -123,8 +124,7 @@ const Dashboard= () => {
             style={{ animationDelay: "300ms" }}
             className="shadow-[0_4px_10px_rgba(255,215,0,0.5)]"
           />
-          
-          {/* Late Entry Card */}
+
           <Card
             title="Late Entry"
             description="Submit and track late entry requests"
@@ -134,8 +134,7 @@ const Dashboard= () => {
             style={{ animationDelay: "400ms" }}
             className="shadow-[0_4px_10px_rgba(128,0,128,0.5)]"
           />
-          
-          {/* Food Sharing Card */}
+
           <Card
             title="Food Sharing"
             description="Buy, sell, or share food items"
@@ -143,26 +142,27 @@ const Dashboard= () => {
             iconBgColor="bg-nitc-light-red"
             onClick={() => navigate("/food")}
             style={{ animationDelay: "500ms" }}
-            className="shadow-[0_4px_10px_rgba(255,0,0,0.5)] /* Pure Red */
-"
+            className="shadow-[0_4px_10px_rgba(255,0,0,0.5)]"
           />
+
           <Card
-            title="Annoucements"
-             description="Important notices and updates"
+            title="Announcements"
+            description="Important notices and updates"
             icon={<Bell size={22} className="text-red-500" />}
             iconBgColor="bg-nitc-light-blue"
             onClick={() => navigate("/sannoucements")}
-            style={{ animationDelay: "500ms" }}
-            className="shadow-[0_4px_10px_rgba(0,0,255,0.5)] 
-"
+            style={{ animationDelay: "600ms" }}
+            className="shadow-[0_4px_10px_rgba(0,0,255,0.5)]"
           />
         </div>
+
         <div className="mt-10">
           <div className="glass p-6 rounded-xl shadow-md">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Clock size={18} className="text-muted-foreground" />
               Announcements
             </h2>
+
             <div className="divide-y">
               {isLoading ? (
                 <div className="py-4 text-center">
@@ -173,9 +173,18 @@ const Dashboard= () => {
                   <ActivityItem
                     key={item.id}
                     title={item.title}
-                    color="blue"
+                    color="announcement"
                     content={item.content}
-                    time={new Date(item.timestamp).toLocaleString()}
+                    category={item.category}
+                    time={new Date(item.timestamp).toLocaleString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true, // optional: for 12-hour format
+                    })}
+                    
                     className={`animate-delay-${index * 100}`}
                   />
                 ))
@@ -188,11 +197,6 @@ const Dashboard= () => {
           </div>
         </div>
       </main>
-     
-      
-      {/* <footer className="py-4 text-center text-sm text-gray-500">
-        <p>© 2023 NITC HostelConnect. All rights reserved.</p>
-      </footer> */}
     </div>
   );
 };

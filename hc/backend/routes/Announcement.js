@@ -47,65 +47,40 @@ router.get("/:id", (req, res) => {
 
 // Create a new announcement (admin only)
 router.post("/", auth, (req, res) => {
-  const { title, content, category, has_attachment, attachment_url } = req.body;
-  
-  if (!title || !content || !category) {
+  const { title, content, category, type, block } = req.body;
+
+  if (!title || !content || !category || !type) {
     return res.status(400).json({ error: "Required fields missing" });
   }
 
+  const insertQuery = `
+    INSERT INTO announcements 
+    (title, content, category, typec, block, admin_id) 
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
   db.query(
-    "INSERT INTO announcements (title, content, category, has_attachment, attachment_url, admin_id) VALUES (?, ?, ?, ?, ?, ?)",
-    [title, content, category, has_attachment || false, attachment_url, req.user.id],
+    insertQuery,
+    [
+      title,
+      content,
+      category,
+      type,
+      type === "Block Specific" ? block : null,
+      req.user.id,
+    ],
     (err, result) => {
       if (err) {
+        console.error("DB error:", err);
         return res.status(500).json({ error: "Failed to create announcement" });
       }
-      res.status(201).json({ 
-        message: "Announcement created successfully", 
-        id: result.insertId 
+      res.status(201).json({
+        message: "Announcement created successfully",
+        id: result.insertId,
       });
     }
   );
 });
 
-// Update an announcement (admin only)
-router.put("/:id", auth, (req, res) => {
-  const { title, content, category, has_attachment, attachment_url } = req.body;
-  
-  if (!title || !content || !category) {
-    return res.status(400).json({ error: "Required fields missing" });
-  }
-
-  db.query(
-    "UPDATE announcements SET title = ?, content = ?, category = ?, has_attachment = ?, attachment_url = ? WHERE id = ?",
-    [title, content, category, has_attachment || false, attachment_url, req.params.id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: "Failed to update announcement" });
-      }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Announcement not found" });
-      }
-      res.json({ message: "Announcement updated successfully" });
-    }
-  );
-});
-
-// Delete an announcement (admin only)
-router.delete("/:id", auth, (req, res) => {
-  db.query(
-    "DELETE FROM announcements WHERE id = ?",
-    [req.params.id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: "Failed to delete announcement" });
-      }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Announcement not found" });
-      }
-      res.json({ message: "Announcement deleted successfully" });
-    }
-  );
-});
 
 module.exports = router;
