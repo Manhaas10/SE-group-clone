@@ -24,10 +24,10 @@ const Header= ({
       </div>
       
       <div className="flex items-center gap-3">
-        <div className="relative cursor-pointer">
+        {/* <div className="relative cursor-pointer">
           <Bell size={20} className="text-gray-600 hover:text-nitc-blue transition-colors" />
           <Badge count={notificationCount} className="-top-2 -right-2" />
-        </div>
+        </div> */}
         
         <Button
           variant="ghost"
