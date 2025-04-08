@@ -20,7 +20,7 @@ const Skill = () => {
   const navigate = useNavigate();
   // const userId = Number(localStorage.getItem("userId")); // Get logged-in user ID
   const [userId, setUserId] = useState(null);
-  // 🔄 Fetch all posts & user-specific posts
+  // Fetch all posts & user-specific posts
   useEffect(() => {
     const fetchUserId = async () => {
       try {
@@ -95,7 +95,7 @@ const Skill = () => {
     fetchPosts();
   }, [userId]);
 
-  // ✅ Handle New Post Creation
+  // Handle New Post Creation
   const handleAddPost = async (data) => {
     try {
       const response = await api.post("/skillpost", data, {
@@ -113,7 +113,7 @@ const Skill = () => {
     }
   };
 
-  // ✅ Join a Skill Post
+  // Join a Skill Post
   const handleJoinPost = async (postId) => {
     try {
       await api.post(`/skillpost/${postId}/join`, {}, {
@@ -140,7 +140,7 @@ const Skill = () => {
   };
   
 
-  // ❌ Leave a Skill Post
+  // Leave a Skill Post
   const handleLeavePost = async (postId) => {
     try {
       await api.post(`/skillpost/${postId}/leave`, {}, {
@@ -161,7 +161,7 @@ const Skill = () => {
     }
   };
 
-  // 🏷️ Update Filtered Posts when `filter` changes
+  // Update Filtered Posts when `filter` changes
   useEffect(() => {
     setFilteredPosts(
       filter === "ALL"
@@ -171,7 +171,7 @@ const Skill = () => {
         : filter === "SEEKING"
         ? posts.filter((post) => post.postType === "SEEKING")
         : filter === "POST"
-        ? userPosts // ✅ Use the fetched user-specific posts
+        ? userPosts // Use the fetched user-specific posts
         : filter === "JOINED"
         ? joinedPosts
         : joinedPosts
@@ -193,7 +193,7 @@ console.log("lo",userPosts);
         <div className="w-full max-w-4xl px-6">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-3xl font-bold">Skill Sharing</h2>
+              <h2 className="text-3xl font-bold">Collaborative Learning</h2>
               <p className="text-gray-500">Share your skills or learn from others</p>
             </div>
             <Button variant="outline" className="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white" onClick={() => setShowNewPostForm(true)}>

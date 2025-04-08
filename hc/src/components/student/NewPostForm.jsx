@@ -19,7 +19,7 @@ const NewPostForm = ({ onClose, onPostSuccess }) => {
     description: "",
     timings: "",
     venue: "",
-    maxPeople: 1, // ✅ Default value for max participants
+    maxPeople: 1, // Default value for max participants
   });
 
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,7 @@ const NewPostForm = ({ onClose, onPostSuccess }) => {
     setLoading(true);
     setError("");
 
-    console.log("Submitting Data:", formData); // ✅ Debugging
+    console.log("Submitting Data:", formData); // Debugging
 
     try {
       const response = await api.post("/skillpost", formData, {

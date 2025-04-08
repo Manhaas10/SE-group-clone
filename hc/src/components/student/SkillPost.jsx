@@ -81,7 +81,6 @@ const SkillPost = ({
     <>
       <div className="relative bg-white rounded-xl shadow-sm border border-border p-6 hover:shadow-md transition-all duration-300 flex flex-col">
         
-        {/* Info Icon for Description */}
         <div
           className="absolute top-3 right-3 flex items-center gap-1 cursor-pointer"
           onMouseEnter={() => setShowDescription(true)}
@@ -91,14 +90,12 @@ const SkillPost = ({
           <span className="text-xs text-gray-600">Description</span>
         </div>
 
-        {/* Floating Description Box */}
         {showDescription && (
           <div className="absolute top-8 right-3 bg-white shadow-lg border border-gray-300 p-3 rounded-md w-48 text-sm text-gray-700 z-50">
             {description}
           </div>
         )}
 
-        {/* Post Type and Category */}
         <div className="flex items-center gap-3 mb-3">
           <span
             className={`text-xs font-semibold px-3 py-1 rounded-full 
@@ -111,7 +108,6 @@ const SkillPost = ({
 
         <h3 className="text-xl font-bold mb-2">{title}</h3>
 
-        {/* Details Section */}
         <div className="flex justify-between items-center text-sm text-gray-500">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-1">
@@ -131,7 +127,6 @@ const SkillPost = ({
             </div>
           </div>
 
-          {/* Join/Leave Button */}
           {!isCreator && (
             userJoined ? (
               <button
@@ -158,7 +153,6 @@ const SkillPost = ({
         </div>
       </div>
 
-      {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50">
 

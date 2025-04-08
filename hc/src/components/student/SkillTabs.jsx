@@ -28,12 +28,6 @@ const SkillTabs= ({ activeTab, setActiveTab }) => {
   );
 };
 
-// interface TabButtonProps {
-//   children: React.ReactNode;
-//   isActive: boolean;
-//   onClick: () => void;
-// }
-
 const TabButton= ({ children, isActive, onClick }) => {
   return (
     <button

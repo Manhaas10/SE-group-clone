@@ -116,7 +116,7 @@ const Dashboard = () => {
           />
 
           <Card
-            title="Skill Sharing"
+            title="Collaborative Learning"
             description="Join clubs and collaborate with peers"
             icon={<Users size={22} className="text-yellow-500" />}
             iconBgColor="bg-nitc-light-yellow"
