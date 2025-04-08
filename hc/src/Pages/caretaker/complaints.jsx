@@ -60,9 +60,8 @@ const Index = () => {
 
       toast({
         title: "Status Updated",
-        description: `Complaint status has been changed to ${
-          newStatus === "inProgress" ? "In Progress" : newStatus
-        }.`,
+        description: `Complaint status has been changed to ${newStatus === "inProgress" ? "In Progress" : newStatus
+          }.`,
       });
     } catch (error) {
       console.error("Error updating complaint status:", error);
@@ -167,12 +166,7 @@ const Index = () => {
                     complaints.map((complaint) => (
                       <TableRow key={complaint.id}>
                         <TableCell className="font-medium">
-                          {complaint.room}
-                          {complaint.is_anonymous && (
-                            <span className="ml-2 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
-                              Anonymous
-                            </span>
-                          )}
+                          {complaint.is_anonymous ? "Anonymous" : complaint.room}
                         </TableCell>
                         <TableCell>{complaint.description}</TableCell>
                         <TableCell>

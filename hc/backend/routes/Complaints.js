@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db");
 const { auth } = require("../middleware/auth");
+const { registerLocale } = require("react-datepicker");
 
 
 router.get("/", auth, (req, res) => {
@@ -61,10 +62,12 @@ router.get("/:id", auth, (req, res) => {
 });
 
 router.post("/", auth, (req, res) => {
-  const { room, title, category, description, date, is_anonymous } = req.body;
+  const { roomNo , title, category, description, date, is_anonymous } = req.body;
+
+  console.log(req.body.roomNo);
 
   // Validate required fields
-  if (!room || !title || !category || !description || !date) {
+  if (!roomNo || !title || !category || !description || !date) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -76,7 +79,7 @@ router.post("/", auth, (req, res) => {
 
   db.query(
     "INSERT INTO complaints (room, title, category, description, date, is_anonymous, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    [room, title, category, description, formattedDate, is_anonymous || false, req.user.id],
+    [roomNo, title, category, description, formattedDate, is_anonymous || false, req.user.id],
     (err, result) => {
       if (err) {
         console.error("Database error:", err);
@@ -87,7 +90,7 @@ router.post("/", auth, (req, res) => {
         message: "Complaint created successfully",
         complaint: {
           id: result.insertId,
-          room,
+          roomNo,
           title,
           category,
           description,

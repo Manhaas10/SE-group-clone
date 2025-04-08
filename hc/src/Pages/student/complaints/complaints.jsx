@@ -15,11 +15,13 @@ const Complaints = () => {
   const [complaints, setComplaints] = useState([])
   const [isNewComplaintView, setIsNewComplaintView] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [userProfile, setUserProfile] = useState(null)
   const [newComplaint, setNewComplaint] = useState({
     title: "",
     category: "Electrical",
     description: "",
     date: format(new Date(), "MM/dd/yyyy"),
+    is_anonymous: false,
   })
 
   // Fetch complaints on component mount
@@ -27,8 +29,12 @@ const Complaints = () => {
     const fetchComplaints = async () => {
       try {
         setIsLoading(true)
-        const response = await api.get("/complaints")
-        setComplaints(response.data)
+        const [complaintsRes, profileRes] = await Promise.all([
+          api.get("/complaints"),
+          api.get("/user/profile"),
+        ])
+        setComplaints(complaintsRes.data)
+        setUserProfile(profileRes.data)
       } catch (error) {
         console.error("Error fetching complaints:", error)
         toast.error("Failed to load complaints")
@@ -71,17 +77,18 @@ const Complaints = () => {
 
     try {
       const complaintData = {
-        room: `Room ${localStorage.getItem("hostelblock") || "Unknown"}`,
+        roomNo: `${userProfile.roomNo || "Unknown"}`,
         title: newComplaint.title,
         description: newComplaint.description,
         category: newComplaint.category,
-        date: format(newComplaint.date, "yyyy-MM-dd"), // ✅ Properly formatted date
-        is_anonymous: false,
+        date: format(newComplaint.date, "yyyy-MM-dd"), // Properly formatted date
+        is_anonymous: newComplaint.is_anonymous, // use value from checkbox
       };
+      console.log("at frontend");
       console.log(complaintData);
       const response = await api.post("/complaints", complaintData);
       console.log(response.data);
-      
+
 
       setComplaints([
         { ...complaintData, id: response.data.id, status: "pending" },
@@ -201,11 +208,28 @@ const Complaints = () => {
                   <div className="relative">
                     <DatePicker
                       selected={new Date(newComplaint.date)}
-                      onChange={(date) => setNewComplaint({ ...newComplaint, date: format(date, "MM/dd/yyyy") })}
+                      onChange={(date) => setNewComplaint({ ...newComplaint, date: format(date, "MM/dd/yyyy ") })}
                       dateFormat="MM/dd/yyyy"
                       className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nitc-blue"
                     />
                   </div>
+                </div>
+
+                {/* check box for anonymous complaint  */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="is_anonymous"
+                    name="is_anonymous"
+                    checked={newComplaint.is_anonymous}
+                    onChange={(e) =>
+                      setNewComplaint({ ...newComplaint, is_anonymous: e.target.checked })
+                    }
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                  />
+                  <label htmlFor="is_anonymous" className="text-sm text-gray-700">
+                    Submit anonymously (room number will be hidden)
+                  </label>
                 </div>
 
                 <div className="flex justify-start space-x-3 pt-2">
@@ -235,13 +259,12 @@ const Complaints = () => {
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-semibold">Title: {complaint.title}</h3>
                     <div
-                      className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        complaint.status === "pending"
+                      className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${complaint.status === "pending"
                           ? "bg-amber-100 text-amber-700"
                           : complaint.status === "inProgress"
                             ? "bg-blue-100 text-blue-700"
                             : "bg-green-100 text-green-700"
-                      }`}
+                        }`}
                     >
                       {complaint.status === "pending" ? (
                         <>
@@ -258,10 +281,10 @@ const Complaints = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   <p className="text-md font-semibold">{complaint.description}</p>
                   <div className="text-sm text-gray-500 mb-2">
-                    Category: {complaint.category} | Date: {complaint.date}
+                    Category: {complaint.category} | Date: {format(new Date(complaint.date), "dd/MM/yyyy")}
                   </div>
                 </div>
               ))
@@ -271,6 +294,7 @@ const Complaints = () => {
               </div>
             )}
           </div>
+          
         </div>
       </main>
     </div>
