@@ -20,11 +20,11 @@ const Complaints = () => {
     title: "",
     category: "Electrical",
     description: "",
+    type: "",
     date: format(new Date(), "MM/dd/yyyy"),
     is_anonymous: false,
   })
 
-  // Fetch complaints on component mount
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
@@ -66,57 +66,66 @@ const Complaints = () => {
     })
   }
 
-  const isFormValid = newComplaint.title.trim() && newComplaint.description.trim();
+  const isFormValid = newComplaint.title.trim() && newComplaint.description.trim()
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!isFormValid) {
-      toast.error("Please fill in all required fields.");
-      return;
+      toast.error("Please fill in all required fields.")
+      return
     }
 
     try {
+      let hblock = null
+      if (newComplaint.type === "Block Specific") {
+        hblock = userProfile?.hostelblock || "Unknown"
+      }
+
       const complaintData = {
-        roomNo: `${userProfile.roomNo || "Unknown"}`,
+        roomNo: userProfile?.roomNo || "Unknown",
         title: newComplaint.title,
         description: newComplaint.description,
         category: newComplaint.category,
-        date: format(newComplaint.date, "yyyy-MM-dd"), // Properly formatted date
-        is_anonymous: newComplaint.is_anonymous, // use value from checkbox
-      };
-      console.log("at frontend");
-      console.log(complaintData);
-      const response = await api.post("/complaints", complaintData);
-      console.log(response.data);
+        date: format(new Date(newComplaint.date), "yyyy-MM-dd"),
+        is_anonymous: newComplaint.is_anonymous,
+        ...(hblock ? { hblock } : {}),
+      }
+      console.log(complaintData)
 
+      const response = await api.post("/complaints", complaintData)
 
       setComplaints([
         { ...complaintData, id: response.data.id, status: "pending" },
         ...complaints,
-      ]);
+      ])
 
-      // ✅ Reset form but keep the selected category
       setNewComplaint({
         title: "",
-        category: newComplaint.category, // Preserve category
+        category: newComplaint.category,
+        type: "",
         description: "",
-        date: new Date(),
-      });
+        date: format(new Date(), "MM/dd/yyyy"),
+        is_anonymous: false,
+      })
 
-      setIsNewComplaintView(false);
-      toast.success("Complaint registered successfully!");
+      setIsNewComplaintView(false)
+      toast.success("Complaint registered successfully!")
     } catch (error) {
-      console.error("Error submitting complaint:", error);
-      toast.error("Failed to submit complaint.");
+      console.error("Error submitting complaint:", error)
+      toast.error("Failed to submit complaint.")
     }
-  };
+  }
+
   const handleCancel = () => {
     setIsNewComplaintView(false)
     setNewComplaint({
       title: "",
       category: "Electrical",
+      type: "",
       description: "",
       date: format(new Date(), "MM/dd/yyyy"),
+      is_anonymous: false,
     })
   }
 
@@ -143,14 +152,14 @@ const Complaints = () => {
             </Button>
           </div>
 
-          {isNewComplaintView ? (
+          {isNewComplaintView && (
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h3 className="text-lg font-semibold mb-4">New Complaint</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                      Title
+                      Title<span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -164,10 +173,26 @@ const Complaints = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                      Category
+                    <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+                      Type<span className="text-red-500">*</span>
                     </label>
+                    <select
+                      id="type"
+                      name="type"
+                      value={newComplaint.type}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nitc-blue"
+                    >
+                      <option value="">Select Type</option>
+                      <option value="Block Specific">Block Specific</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
 
+                  <div>
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                      Category<span className="text-red-500">*</span>
+                    </label>
                     <select
                       id="category"
                       name="category"
@@ -188,7 +213,7 @@ const Complaints = () => {
 
                 <div>
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
+                    Description<span className="text-red-500">*</span>
                   </label>
                   <textarea
                     id="description"
@@ -203,19 +228,20 @@ const Complaints = () => {
 
                 <div>
                   <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                    Date
+                    Date<span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <DatePicker
                       selected={new Date(newComplaint.date)}
-                      onChange={(date) => setNewComplaint({ ...newComplaint, date: format(date, "MM/dd/yyyy ") })}
+                      onChange={(date) =>
+                        setNewComplaint({ ...newComplaint, date: format(date, "MM/dd/yyyy") })
+                      }
                       dateFormat="MM/dd/yyyy"
                       className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-nitc-blue"
                     />
                   </div>
                 </div>
 
-                {/* check box for anonymous complaint  */}
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -233,10 +259,7 @@ const Complaints = () => {
                 </div>
 
                 <div className="flex justify-start space-x-3 pt-2">
-                  <Button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg flex items-center"
-                  >
+                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg">
                     Submit Complaint
                   </Button>
                   <Button type="button" variant="outline" onClick={handleCancel}>
@@ -245,9 +268,8 @@ const Complaints = () => {
                 </div>
               </form>
             </div>
-          ) : null}
+          )}
 
-          {/* Complaints List */}
           <div className="space-y-4">
             {isLoading ? (
               <div className="text-center py-10">
@@ -259,12 +281,13 @@ const Complaints = () => {
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-semibold">Title: {complaint.title}</h3>
                     <div
-                      className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${complaint.status === "pending"
+                      className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                        complaint.status === "pending"
                           ? "bg-amber-100 text-amber-700"
                           : complaint.status === "inProgress"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-green-100 text-green-700"
-                        }`}
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-green-100 text-green-700"
+                      }`}
                     >
                       {complaint.status === "pending" ? (
                         <>
@@ -281,7 +304,6 @@ const Complaints = () => {
                       )}
                     </div>
                   </div>
-
                   <p className="text-md font-semibold">{complaint.description}</p>
                   <div className="text-sm text-gray-500 mb-2">
                     Category: {complaint.category} | Date: {format(new Date(complaint.date), "dd/MM/yyyy")}
@@ -294,7 +316,6 @@ const Complaints = () => {
               </div>
             )}
           </div>
-          
         </div>
       </main>
     </div>
@@ -302,4 +323,3 @@ const Complaints = () => {
 }
 
 export default Complaints
-

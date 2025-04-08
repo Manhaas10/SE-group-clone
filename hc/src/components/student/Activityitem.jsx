@@ -9,8 +9,8 @@ const capitalize = (text) =>
 // Define category-to-color mapping
 const categoryColorMap = {
   general: "bg-blue-500",
-  maintenance: "bg-yellow-500",
-  electric: "bg-red-500",
+  maintenance: "bg-orange-500",
+  electrical: "bg-yellow-500",
   event: "bg-green-500",
   other: "bg-purple-500",
 };

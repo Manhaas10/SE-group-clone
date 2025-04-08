@@ -51,5 +51,22 @@ router.get("/profile", auth, (req, res) => {
     });
   });
 });
+router.get("/:id", (req, res) => {
+  const userId = req.params.id;
+
+  db.query("SELECT * FROM users WHERE id = ?", [userId], (err, results) => {
+    if (err) {
+      console.error("Error fetching user by ID:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(results[0]);
+  });
+});
+
 
 module.exports = router;

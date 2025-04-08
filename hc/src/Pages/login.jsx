@@ -51,6 +51,7 @@ export default function Login() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("userId", data.user.id);
+      console.log("User data:", data.user);
 
       // Redirect based on role
       if (data.user.role === "user") {

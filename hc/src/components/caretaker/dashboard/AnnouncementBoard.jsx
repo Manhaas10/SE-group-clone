@@ -76,7 +76,7 @@ const AnnouncementBoard = ({ announcements, onToggleBookmark, onCreateNew }) => 
 
         {/* Category Filters */}
         <div className="flex gap-2 flex-wrap">
-          {["General", "Maintenance", "Event", "Electric", "Other"].map((category) => (
+          {["General", "Maintenance", "Event", "Electrical", "Other"].map((category) => (
             <FilterButton
               key={category}
               active={categoryFilter === category.toLowerCase()}

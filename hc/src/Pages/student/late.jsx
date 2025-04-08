@@ -103,9 +103,15 @@ const Late = () => {
           ) : (
             <Tabs defaultValue="pending" className="w-full">
               <TabsList className="mb-6">
-                <TabsTrigger value="pending">Pending</TabsTrigger>
-                <TabsTrigger value="approved">Approved</TabsTrigger>
-                <TabsTrigger value="rejected">Rejected</TabsTrigger>
+                <TabsTrigger value="pending" className="text-blue-600 hover:text-blue-800">
+                  Pending
+                </TabsTrigger>
+                <TabsTrigger value="approved" className="text-green-600 hover:text-green-800">
+                  Approved
+                </TabsTrigger>
+                <TabsTrigger value="rejected" className="text-red-600 hover:text-red-800">
+                  Rejected
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="pending">

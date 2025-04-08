@@ -25,13 +25,52 @@ const Index = () => {
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          console.error("User ID not found in localStorage");
+          return;
+        }
+  
+        const response = await api.get(`/user/${userId}`);
+        console.log("User Info:", response.data);
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load user info",
+        });
+      }
+    };
+  
+    fetchUser();
+  }, []);
+  
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
         setIsLoading(true);
+  
         const response = await api.get("/complaints");
-        setComplaints(response.data);
+        console.log("Fetched complaints:", response.data);
+  
+        // Filter complaints only after user info is loaded
+        if (user) {
+          const filteredComplaints = response.data.filter((complaint) => {
+            return (
+              complaint.hblock === user.hostelblock ||
+              complaint.hblock === "Unknown"
+            );
+          });
+          setComplaints(filteredComplaints);
+        } else {
+          setComplaints(response.data); // fallback
+        }
       } catch (error) {
         console.error("Error fetching complaints:", error);
         toast({
@@ -42,9 +81,13 @@ const Index = () => {
         setIsLoading(false);
       }
     };
-
-    fetchComplaints();
-  }, []);
+  
+    // Only fetch complaints once user is loaded
+    if (user) {
+      fetchComplaints();
+    }
+  }, [user]); // depend on user state
+  
 
   const handleStatusChange = async (id, newStatus) => {
     try {

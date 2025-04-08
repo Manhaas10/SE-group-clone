@@ -4,7 +4,6 @@ const db = require("../db");
 const { auth } = require("../middleware/auth");
 const { registerLocale } = require("react-datepicker");
 
-
 router.get("/", auth, (req, res) => {
   if (req.user.role === "admin") {
     db.query("SELECT * FROM complaints ORDER BY submitted DESC", (err, results) => {
@@ -26,7 +25,6 @@ router.get("/", auth, (req, res) => {
     );
   }
 });
-
 
 router.get("/status/:status", auth, (req, res) => {
   db.query(
@@ -62,24 +60,20 @@ router.get("/:id", auth, (req, res) => {
 });
 
 router.post("/", auth, (req, res) => {
-  const { roomNo , title, category, description, date, is_anonymous } = req.body;
+  const { roomNo, title, category, description, hblock, date, is_anonymous } = req.body;
 
-  console.log(req.body.roomNo);
-
-  // Validate required fields
-  if (!roomNo || !title || !category || !description || !date) {
+  if (!roomNo || !title || !category || !description || !date || !hblock) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  // Convert date to proper format
   const formattedDate = new Date(date);
   if (isNaN(formattedDate.getTime())) {
     return res.status(400).json({ error: "Invalid date format" });
   }
 
   db.query(
-    "INSERT INTO complaints (room, title, category, description, date, is_anonymous, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    [roomNo, title, category, description, formattedDate, is_anonymous || false, req.user.id],
+    "INSERT INTO complaints (room, title, category, description, hblock, date, is_anonymous, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    [roomNo, title, category, description, hblock, formattedDate, is_anonymous || false, req.user.id],
     (err, result) => {
       if (err) {
         console.error("Database error:", err);
@@ -94,7 +88,8 @@ router.post("/", auth, (req, res) => {
           title,
           category,
           description,
-          date: formattedDate.toISOString().split("T")[0], // Send formatted date
+          hblock,
+          date: formattedDate.toISOString().split("T")[0],
           is_anonymous: is_anonymous || false,
           status: "pending",
           submitted: new Date(),
@@ -105,17 +100,16 @@ router.post("/", auth, (req, res) => {
   );
 });
 
-
 router.put("/:id", auth, (req, res) => {
-  const { room, description, is_anonymous } = req.body;
-  
-  if (!room || !description) {
+  const { room, description, hblock, is_anonymous } = req.body;
+
+  if (!room || !description || !hblock) {
     return res.status(400).json({ error: "Required fields missing" });
   }
 
   db.query(
-    "UPDATE complaints SET room = ?, description = ?, is_anonymous = ? WHERE id = ? AND user_id = ?",
-    [room, description, is_anonymous || false, req.params.id, req.user.id],
+    "UPDATE complaints SET room = ?, description = ?, hblock = ?, is_anonymous = ? WHERE id = ? AND user_id = ?",
+    [room, description, hblock, is_anonymous || false, req.params.id, req.user.id],
     (err, result) => {
       if (err) {
         return res.status(500).json({ error: "Failed to update complaint" });
@@ -130,7 +124,7 @@ router.put("/:id", auth, (req, res) => {
 
 router.patch("/:id/status", auth, (req, res) => {
   const { status } = req.body;
-  
+
   if (!status || !['pending', 'inProgress', 'resolved'].includes(status)) {
     return res.status(400).json({ error: "Valid status required" });
   }
