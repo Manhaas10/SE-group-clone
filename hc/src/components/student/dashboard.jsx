@@ -136,16 +136,6 @@ const Dashboard = () => {
           />
 
           <Card
-            title="Food Sharing"
-            description="Buy, sell, or share food items"
-            icon={<Utensils size={22} className="text-red-500" />}
-            iconBgColor="bg-nitc-light-red"
-            onClick={() => navigate("/food")}
-            style={{ animationDelay: "500ms" }}
-            className="shadow-[0_4px_10px_rgba(255,0,0,0.5)]"
-          />
-
-          <Card
             title="Announcements"
             description="Important notices and updates"
             icon={<Bell size={22} className="text-red-500" />}
@@ -157,7 +147,7 @@ const Dashboard = () => {
         </div>
 
         <div className="mt-10">
-          <div className="glass p-6 rounded-xl shadow-md">
+          <div className="glass p-6 rounded-xl shadow-md bg-white">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Clock size={18} className="text-muted-foreground" />
               Announcements
@@ -169,13 +159,14 @@ const Dashboard = () => {
                   <p className="text-muted-foreground">Loading announcements...</p>
                 </div>
               ) : filteredAnnouncements.length > 0 ? (
-                filteredAnnouncements.slice(0, 4).map((item, index) => (
+                filteredAnnouncements.slice(0, 5).map((item, index) => (
                   <ActivityItem
                     key={item.id}
                     title={item.title}
                     color="announcement"
                     content={item.content}
                     category={item.category}
+                    
                     time={new Date(item.timestamp).toLocaleString(undefined, {
                       year: "numeric",
                       month: "short",
@@ -185,7 +176,7 @@ const Dashboard = () => {
                       hour12: true, // optional: for 12-hour format
                     })}
                     
-                    className={`animate-delay-${index * 100}`}
+                    className="py-4"
                   />
                 ))
               ) : (

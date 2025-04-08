@@ -77,10 +77,11 @@ const Complaints = () => {
     }
 
     try {
-      let hblock = null
+      let hblock = "Unknown"
       if (newComplaint.type === "Block Specific") {
-        hblock = userProfile?.hostelblock || "Unknown"
+        hblock = userProfile?.hostelblock
       }
+      
 
       const complaintData = {
         roomNo: userProfile?.roomNo || "Unknown",

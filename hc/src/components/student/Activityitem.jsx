@@ -19,7 +19,7 @@ const ActivityItem = ({ title, content, time, category, className }) => {
   const dotColor = categoryColorMap[category?.toLowerCase()] || "bg-gray-400";
 
   return (
-    <div className={cn("flex items-start justify-between py-4 border-b border-gray-200", className)}>
+    <div className={cn("flex items-start justify-between py-4 border-b border-white-200", className)}>
       {/* Left: Status Dot + Content */}
       <div className="flex gap-3 flex-1">
         <div className={cn("h-3 w-3 rounded-full mt-1.5", dotColor)} />

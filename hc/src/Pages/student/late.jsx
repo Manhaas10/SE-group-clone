@@ -91,7 +91,7 @@ const Late = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h2 className="text-xl font-semibold">Request History</h2>
-            <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate("/ll")}>
+            <Button className="text-white bg-indigo-500 hover:bg-indigo-600 " onClick={() => navigate("/ll")}>
               New Request
             </Button>
           </div>

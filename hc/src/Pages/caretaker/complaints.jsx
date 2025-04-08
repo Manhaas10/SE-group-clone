@@ -198,6 +198,7 @@ const Index = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Room</TableHead>
+                    <TableHead>Title</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Submitted</TableHead>
@@ -211,12 +212,22 @@ const Index = () => {
                         <TableCell className="font-medium">
                           {complaint.is_anonymous ? "Anonymous" : complaint.room}
                         </TableCell>
+                        <TableCell className="font-medium">
+                          {complaint.title}
+                        </TableCell>
                         <TableCell>{complaint.description}</TableCell>
                         <TableCell>
                           {getStatusBadge(complaint.status)}
                         </TableCell>
                         <TableCell className="text-gray-500">
-                          {new Date(complaint.submitted).toLocaleString()}
+                          {new Date(complaint.submitted).toLocaleString(undefined, {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true // optional, depending on whether you want AM/PM
+})}
                         </TableCell>
                         <TableCell>
                           <Select
