@@ -8,12 +8,25 @@ import FilterTabs from "@/components/student/filtercard"
 import ItemCard from "@/components/student/iitermcard"
 import api from "../../api/axios"
 import { toast } from "sonner"
+import { Category } from "@/types"
 
 const LostAndFound = () => {
   const [activeFilter, setActiveFilter] = useState("ALL")
   const [items, setItems] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
+  const [user, setUser] = useState(null)
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/user/me", { withCredentials: true });
+        setUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -40,7 +53,19 @@ const LostAndFound = () => {
   }, [])
 
   const filteredItems = items.filter((item) => {
-    if (activeFilter === "ALL") return true
+    if (activeFilter === "ALL") {
+      // For "with_caretaker", show only if it belongs to the user
+      if (item.status==="claimed" ||(item.status === "With Caretaker" && item.user_id !== user.userId)) {
+        return false;
+      }
+      return true;
+    }
+    if (activeFilter === "With Caretaker") {
+      return (
+        (item.status === "lost" || item.status === "With Caretaker") &&
+        item.user_id === user.userId // fetched from session or user context
+      );
+    }
     return item.status === activeFilter.toLowerCase()
   })
 
@@ -79,7 +104,7 @@ const LostAndFound = () => {
             <div className="col-span-full text-center py-12">
               <p className="text-lg font-medium text-muted-foreground">Loading items...</p>
             </div>
-          ) : filteredItems.length > 0 ? (
+          ) : filteredItems.filter(item => item.status !== "claimed").length > 0 ? (
             filteredItems.map((item) => (
               <ItemCard
                 key={item.id}
@@ -92,6 +117,9 @@ const LostAndFound = () => {
                   type: item.status.toUpperCase(),
                   reportedBy: item.reported_by,
                   image: item.image,
+                  user_id: item.user_id,
+                  status: item.status,
+                  category: item.additional_details,
                 }}
               />
             ))

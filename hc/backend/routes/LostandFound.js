@@ -11,7 +11,7 @@ const upload = multer({ storage: storage });
 // 🔹 GET All Items (include image blob and image_url)
 router.get("/", (req, res) => {
   db.query(
-    "SELECT id, name, description, location, status, reported_by, additional_details, date, image FROM lost_found_items ORDER BY date DESC",
+    "SELECT id, name, description, location, status, reported_by, additional_details, date, image, user_id FROM lost_found_items ORDER BY date DESC",
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: "Database error" });
@@ -137,7 +137,7 @@ router.post("/", auth, upload.single("image"), (req, res) => {
 router.patch("/:id/status", auth, (req, res) => {
   const { status } = req.body;
 
-  if (!status || !['lost', 'found', 'claimed'].includes(status)) {
+  if (!status || !['lost', 'found', 'claimed','With Caretaker'].includes(status)) {
     return res.status(400).json({ error: "Valid status required" });
   }
 

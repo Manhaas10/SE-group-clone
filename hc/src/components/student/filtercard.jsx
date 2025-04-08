@@ -7,6 +7,7 @@ const FilterTabs = ({ activeFilter, onChange }) => {
     { id: "ALL", label: "All Items" },
     { id: "LOST", label: "Lost Items" },
     { id: "FOUND", label: "Found Items" },
+    { id: "With Caretaker", label: "Your Lost Items" },
   ];
 
   return (

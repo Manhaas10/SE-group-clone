@@ -110,6 +110,12 @@ const LostAndFoundd = () => {
             Claimed
           </Badge>
         )
+      case "With Caretaker":
+        return (
+          <Badge className="bg-[#E0F2FE] text-blue-600 hover:bg-[#D0E2EE]">
+            With Caretaker
+          </Badge>
+        )
       default:
         return <Badge>Unknown</Badge>
     }
@@ -203,6 +209,7 @@ const LostAndFoundd = () => {
                           <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">
                             <SelectItem value="lost">Lost</SelectItem>
                             <SelectItem value="found">Found</SelectItem>
+                            <SelectItem value="With Caretaker">With Caretaker</SelectItem>
                             <SelectItem value="claimed">Claimed</SelectItem>
                           </SelectContent>
                         </Select>

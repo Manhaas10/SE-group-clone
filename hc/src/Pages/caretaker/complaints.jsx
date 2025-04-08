@@ -200,6 +200,7 @@ const Index = () => {
                     <TableHead>Room</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead>Description</TableHead>
+                    <TableHead>type</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Submitted</TableHead>
                     <TableHead>Actions</TableHead>
@@ -216,6 +217,7 @@ const Index = () => {
                           {complaint.title}
                         </TableCell>
                         <TableCell>{complaint.description}</TableCell>
+                        <TableCell>{complaint.typec}</TableCell>
                         <TableCell>
                           {getStatusBadge(complaint.status)}
                         </TableCell>

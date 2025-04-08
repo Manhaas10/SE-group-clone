@@ -14,8 +14,7 @@ router.get("/", auth, (req, res) => {
     });
   } else {
     db.query(
-      "SELECT * FROM complaints WHERE user_id = ? ORDER BY submitted DESC",
-      [req.user.id],
+      "SELECT * FROM complaints ORDER BY submitted DESC",
       (err, results) => {
         if (err) {
           return res.status(500).json({ error: "Database error" });
@@ -60,7 +59,7 @@ router.get("/:id", auth, (req, res) => {
 });
 
 router.post("/", auth, (req, res) => {
-  const { roomNo, title, category, description, hblock, date, is_anonymous } = req.body;
+  const { roomNo, title, category, description, hblock, date, is_anonymous, typec } = req.body;
 
   if (!roomNo || !title || !category || !description || !date || !hblock) {
     return res.status(400).json({ error: "All fields are required" });
@@ -72,8 +71,9 @@ router.post("/", auth, (req, res) => {
   }
 
   db.query(
-    "INSERT INTO complaints (room, title, category, description, hblock, date, is_anonymous, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    [roomNo, title, category, description, hblock, formattedDate, is_anonymous || false, req.user.id],
+    "INSERT INTO complaints (room, title, category, description, hblock, date, is_anonymous, user_id, typec) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    [roomNo, title, category, description, hblock, formattedDate, is_anonymous || false, req.user.id, typec],
+  
     (err, result) => {
       if (err) {
         console.error("Database error:", err);
@@ -89,6 +89,7 @@ router.post("/", auth, (req, res) => {
           category,
           description,
           hblock,
+          typec,
           date: formattedDate.toISOString().split("T")[0],
           is_anonymous: is_anonymous || false,
           status: "pending",

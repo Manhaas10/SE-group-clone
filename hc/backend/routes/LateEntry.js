@@ -97,7 +97,7 @@ router.post("/", auth, upload.single("attachment"), (req, res) => {
 
     // console.log("The file: ", req.file.buffer);
     db.query(
-      "INSERT INTO late_entry_requests (student_id, reason, status, attachment_name, attachment_url, attachment, user_id, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO late_entry_requests (student_id, reason, status, attachment_name, attachment_url, attachment, user_id, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         student_id,
         reason,

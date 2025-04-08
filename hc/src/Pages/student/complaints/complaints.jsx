@@ -33,6 +33,8 @@ const Complaints = () => {
           api.get("/complaints"),
           api.get("/user/profile"),
         ])
+        console.log(complaintsRes.data)
+        console.log(profileRes.data)
         setComplaints(complaintsRes.data)
         setUserProfile(profileRes.data)
       } catch (error) {
@@ -88,6 +90,7 @@ const Complaints = () => {
         title: newComplaint.title,
         description: newComplaint.description,
         category: newComplaint.category,
+        typec: newComplaint.type,
         date: format(new Date(newComplaint.date), "yyyy-MM-dd"),
         is_anonymous: newComplaint.is_anonymous,
         ...(hblock ? { hblock } : {}),
@@ -186,6 +189,7 @@ const Complaints = () => {
                     >
                       <option value="">Select Type</option>
                       <option value="Block Specific">Block Specific</option>
+                      <option value="Personal">Confidential/RoomRelated</option>
                       <option value="Other">Other</option>
                     </select>
                   </div>
@@ -276,11 +280,30 @@ const Complaints = () => {
               <div className="text-center py-10">
                 <p className="text-gray-500">Loading complaints...</p>
               </div>
-            ) : complaints.length > 0 ? (
-              complaints.map((complaint) => (
+            ) : complaints.filter(
+              (complaint) =>{
+                if (complaint.typec === "Personal") {
+                  return complaint.room === userProfile.roomNo;
+                } else {
+                  return (
+                    complaint.hblock === userProfile.hostelblock ||
+                    complaint.hblock === "Unknown"
+                  );
+                }
+            }).length > 0 ? (complaints.filter(
+              (complaint) =>{
+                if (complaint.typec === "Personal") {
+                  return complaint.room === userProfile.roomNo;
+                } else {
+                  return (
+                    complaint.hblock === userProfile.hostelblock ||
+                    complaint.hblock === "Unknown"
+                  );
+                }
+              }).map((complaint) => (
                 <div key={complaint.id} className="bg-white rounded-lg p-6 shadow-sm">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-semibold">Title: {complaint.title}</h3>
+                    <h3 className="text-lg font-semibold">{complaint.title}</h3>
                     <div
                       className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                         complaint.status === "pending"
