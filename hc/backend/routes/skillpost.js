@@ -32,7 +32,7 @@ router.post("/", auth, async (req, res) => {
 router.get("/", async (req, res) => {
     try {
         const [posts] = await db.promise().execute(`
-            SELECT s.*, u.username AS postedBy, 
+            SELECT s.*, u.name AS postedBy, 
                 (SELECT COUNT(*) FROM skillpost_interests WHERE skillpost_id = s.id) AS currentParticipants
             FROM skillpost s 
             JOIN users u ON s.userId = u.id
@@ -51,7 +51,7 @@ router.get("/joined", auth, async (req, res) => {
 
     try {
         const [posts] = await db.promise().execute(`
-            SELECT s.*, u.username AS postedBy 
+            SELECT s.*, u.name AS postedBy 
             FROM skillpost s
             JOIN skillpost_interests si ON s.id = si.skillpost_id
             JOIN users u ON s.userId = u.id
@@ -94,7 +94,7 @@ router.get("/joined/:userId", auth, (req, res) => {
 router.get("/user/:userId", auth, (req, res) => {
     const { userId } = req.params;
 
-    const sql = `SELECT p.id,p.userId AS userId, u.name AS user_name, p.postType, p.category, 
+    const sql = `SELECT p.id,p.userId AS userId, u.name AS postedBy, p.postType, p.category, 
                         p.title, p.description, p.venue, p.timings, 
                         p.maxPeople, p.currentParticipants, p.created_at
                  FROM skillpost p
@@ -224,7 +224,7 @@ router.get("/:id/interested-users", async (req, res) => {
 
     try {
         const [users] = await db.promise().execute(`
-            SELECT u.id, u.username, si.interested_at
+            SELECT u.id, u.name, si.interested_at
             FROM skillpost_interests si
             JOIN users u ON si.user_id = u.id
             WHERE si.skillpost_id = ?

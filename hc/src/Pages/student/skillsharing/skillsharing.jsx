@@ -77,11 +77,12 @@ const Skill = () => {
           // headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           // withCredentials:true,
         });
+        // console.log(userResponse.data);
         setUserPosts(userResponse.data);
         const joinedResponse = await api.get("/skillpost/joined", {
           // headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("hi",joinedResponse.data);
+        // console.log("hi",joinedResponse.data);
         setJoinedPosts(joinedResponse.data);
       } catch (error) {
         toast({
@@ -177,7 +178,6 @@ const Skill = () => {
         : joinedPosts
     );
   }, [filter, posts, userPosts, userId,joinedPosts]);
-console.log("lo",userPosts);
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="bg-white shadow-sm">

@@ -39,7 +39,7 @@ const SkillCard = ({ post, index }) => {
         
         <div className="flex items-center gap-1.5 ml-auto">
           <User size={16} className="text-gray-400" />
-          <span>Posted by: {post.postedBy}</span>
+          <span>Posted by: {post.user_name ? post.user_name : post.postedBy}</span>
         </div>
       </div>
     </motion.div>
