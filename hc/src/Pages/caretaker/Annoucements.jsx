@@ -65,6 +65,7 @@ const Index = () => {
       });
 
       setShowAnnouncementModal(false);
+      window.location.reload(); // Refresh the page to show the new announcement
     } catch (error) {
       console.error("Error creating announcement:", error);
       toast({

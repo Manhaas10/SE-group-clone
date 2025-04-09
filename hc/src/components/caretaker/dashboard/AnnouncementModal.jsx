@@ -63,7 +63,7 @@ const AnnouncementModal = ({ isOpen, onClose, onSubmit }) => {
 
   const blockOptions = ['Block A', 'Block B', 'Block C', 'Block D'];
   const typeOptions = ['Block Specific', 'All Blocks'];
-  const categoryOptions = ['General', 'Maintenance', 'Event', 'Electrical', 'Other'];
+  const categoryOptions = ['General', 'Maintenance', 'Electrical', 'Other'];
 
   const toggleDropdown = (name) => {
     setDropdownOpen((prev) => {

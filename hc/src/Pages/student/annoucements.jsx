@@ -18,13 +18,14 @@ const Announcementss = () => {
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
 
-  const filterCategories = ["All", "General", "Maintenance", "Electrical", "Event", "Other"];
+  const filterCategories = ["All", "General", "Maintenance", "Electrical", "Other"];
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await api.get("/user/me", { withCredentials: true });
         setUser(response.data);
+        console.log(response.data);
         setUsername(response.data.username);
       } catch (error) {
         console.error("Failed to fetch user:", error);
@@ -63,7 +64,7 @@ const Announcementss = () => {
 
     const matchesBlock =
       announcement.typec !== "Block Specific" ||
-      (user && announcement.block === user.hostelBlock);
+      (user && announcement.block.split(" ").pop() === user.block    );
 
     return matchesCategory && matchesSearch && matchesBlock;
   });
