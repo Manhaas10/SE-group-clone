@@ -74,7 +74,7 @@ node index.js
 
 
 
-# 🔄 Hostel Management System – Workflow Overview
+# 🔄 Hostel Connect– Workflow Overview
 
 This document explains the complete **workflow** of the Hostel Management System project, including how different modules function and interact between **students** and **caretakers**.
 
