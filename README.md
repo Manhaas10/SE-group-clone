@@ -1,31 +1,48 @@
-## 🚀 Backend Setup Instructions
+# 🏠 Hostel Issues Management System
 
-### 1️⃣ Initial Setup
+## 📁 Project Structure
 
-- Make sure you have the following installed:
-  - Node.js
-  - MySQL
-  - npm
+- **Frontend**: React.js + Tailwind CSS
+- **Backend**: Node.js + Express.js + MySQL
+- **Authentication**: Google Sign-In (for students) & JWT (for caretakers)
 
-- Navigate to the backend folder.
+---
 
-### 2️⃣ Configuration
+## 🔧 Backend Setup
 
-- Check and update the following files:
-  - `db.js` – Contains database connection details.
-  - `.env` – Set your environment variables like DB credentials, JWT secret, etc.
-  - `index.js` – Main entry point for the server.
+### ✅ Requirements
+- Node.js
+- MySQL
+- npm
 
-### 3️⃣ Database Setup
+### ⚙️ Configuration
+- Check and update:
+  - `db.js`: for DB connection
+  - `.env`: for environment variables
+  - `index.js`: main server file
 
-- Open MySQL and create a database (name should match the one used in `db.js`).
-- Run the provided SQL file to:
-  - Create tables
-  - Add initial data
+### 🗃️ Database Setup
+1. Create a MySQL database (name should match `db.js`).
+2. Run the provided `.sql` file to create tables and insert initial data.
 
-### 4️⃣ Running the Backend
+### 👥 Users Setup
+- Insert users manually into the `users` table.
+- **Students**:
+  - Use a Google email.
+  - Set `role` as `'user'`.
+- **Caretakers**:
+  - Set `role` as `'admin'`.
+  - Password must be **hashed** using bcrypt with salt rounds = 10:
+    ```js
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash('your_password', 10);
+    ```
 
-Install dependencies and start the server:
+### 🛡️ Authentication
+- JWT tokens are used.
+- Tokens are issued on login and required for protected routes.
+
+### ▶️ Run Backend
 
 ```bash
 npm install
