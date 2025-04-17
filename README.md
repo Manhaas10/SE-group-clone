@@ -217,4 +217,3 @@ The student dashboard consists of the following sections:
 
 ---
 
-Let me know if you’d like a flowchart diagram version or include database structure reference for this!
