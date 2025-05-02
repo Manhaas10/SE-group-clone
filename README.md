@@ -22,8 +22,8 @@
   - `index.js`: main server file
 
 ### 🗃️ Database Setup
-1. Create a MySQL database (name should match `db.js`).
-2. Run the provided `.sql` file to create tables and insert initial data.
+1. Create a MySQL database (name should match database name in `db.js`).
+2. Run the provided `.sql` file(in folder hc/sql file) to create tables and insert initial data.
 
 ### 👥 Users Setup
 - Insert users manually into the `users` table.
